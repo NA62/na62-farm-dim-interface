@@ -22,14 +22,18 @@ namespace na62 {
 namespace dim {
 class MessageQueueConnector;
 typedef boost::shared_ptr<MessageQueueConnector> MessageQueueConnector_ptr;
+typedef boost::shared_ptr<DimService> DimService_ptr;
 
 class MonitorDimServer: public boost::enable_shared_from_this<MonitorDimServer>, DimServer, private boost::noncopyable {
 private:
+	const std::string hostName_;
 	MyCommandHandler cmdh;
 
-	int initialState;
-	DimService stateService;
-	DimService statisticsService;
+	int initialState_;
+	DimService stateService_;
+	std::map<std::string, DimService_ptr> multiStatisticServices_;
+	std::map<std::string, DimService_ptr> longlongStatisticServices_;
+
 
 	MessageQueueConnector_ptr messageQueueConnector_;
 
@@ -39,7 +43,8 @@ public:
 	virtual ~MonitorDimServer();
 
 	void updateState(STATE state);
-	void updateStatistics(std::string statistics);
+	void updateStatistics(std::string serviceName, std::string statistics);
+	void updateStatistics(std::string serviceName, longlong value);
 };
 
 typedef boost::shared_ptr<MonitorDimServer> MonitorDimServer_ptr;

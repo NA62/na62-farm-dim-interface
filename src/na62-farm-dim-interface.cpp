@@ -23,7 +23,7 @@ boost::asio::io_service io_service;
 
 void handle_stop(const boost::system::error_code& error, int signal_number) {
 	if (!error) {
-		std::cerr << "Stopping farm control" << std::endl;
+		std::cerr << "Stopping dim interface" << std::endl;
 		io_service.stop();
 		exit(0);
 	}

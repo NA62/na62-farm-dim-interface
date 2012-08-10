@@ -5,7 +5,7 @@
  *      Author: root
  */
 #include <boost/asio.hpp>
-
+#include <boost/lexical_cast.hpp>
 #include "MonitorDimServer.h"
 #include "States.h"
 
@@ -16,7 +16,7 @@ namespace dim {
 
 using namespace boost::interprocess;
 
-MessageQueueConnector::MessageQueueConnector(){
+MessageQueueConnector::MessageQueueConnector() {
 	// TODO Auto-generated constructor stub
 
 }
@@ -26,80 +26,93 @@ MessageQueueConnector::~MessageQueueConnector() {
 }
 
 void MessageQueueConnector::run() {
-	try {
-		// Erase previous message queue
-		message_queue::remove("state");
-		// Open a message queue.
-		message_queue stateQueue(create_only //only create
-				, "state" //name
-				, 1 // max message number
-				, sizeof(int) //max message size
-				);
+	while (true) {
+		try {
+			message_queue::remove("state");
+			message_queue stateQueue(create_only, "state" //name
+					, 1 // max message number
+					, sizeof(int) // max message size
+					);
 
-		message_queue::remove("statistics");
-		message_queue statisticsQueue(create_only //only create
-				, "statistics" //name
-				, 1 // max message number
-				, 1024 * 64 //max message size
-						);
-		unsigned int priority;
-		message_queue::size_type recvd_size;
+			message_queue::remove("statistics");
+			message_queue statisticsQueue(create_only, "statistics" //name
+					, 100 // max message number
+					, 1024 * 64 // max message size
+							);
+			unsigned int priority;
+			message_queue::size_type recvd_size;
 
-		STATE state = OFF;
-		std::string statistics;
-		while (true) {
-			statistics.resize(1024 * 64);
-			boost::posix_time::time_duration timeoutDuration(
-					boost::posix_time::seconds(2));
+			STATE state = OFF;
 
-			boost::posix_time::ptime timeout = boost::posix_time::ptime(
-					boost::posix_time::second_clock::universal_time()
-							+ timeoutDuration);
+			std::string statisticsMessage;
+			while (true) {
+				boost::posix_time::time_duration timeoutDuration(
+						boost::posix_time::seconds(2));
 
-			if (stateQueue.timed_receive(&state, sizeof(int), recvd_size,
-					priority, timeout)) {
-				dimServer_->updateState(state);
-				std::cerr << "Received state" << state << " : " << priority
-						<< std::endl;
+				boost::posix_time::ptime timeout = boost::posix_time::ptime(
+						boost::posix_time::second_clock::universal_time()
+								+ timeoutDuration);
 
-				if (statisticsQueue.try_receive(&(statistics[0]),
-						statistics.size(), recvd_size, priority)) {
-					statistics.resize(recvd_size);
-					std::cerr << statistics << std::endl;
-
-					dimServer_->updateStatistics(statistics);
-
-				} else {
-					std::cerr << "Didn't receive any new statistics!"
+				if (stateQueue.timed_receive(&state, sizeof(int), recvd_size,
+						priority, timeout)) {
+					dimServer_->updateState(state);
+					std::cerr << "Received state" << state << " : " << priority
 							<< std::endl;
+
+					while (statisticsQueue.get_num_msg() > 0) {
+						statisticsMessage.resize(1024 * 64);
+						if (statisticsQueue.try_receive(&(statisticsMessage[0]),
+								statisticsMessage.size(), recvd_size,
+								priority)) {
+							statisticsMessage.resize(recvd_size);
+
+							std::string statisticsName =
+									statisticsMessage.substr(0,
+											statisticsMessage.find(':'));
+							std::string statistics = statisticsMessage.substr(
+									statisticsMessage.find(':') + 1);
+
+							if (statistics.find(";")!=std::string::npos) {
+								dimServer_->updateStatistics(statisticsName,
+										statistics);
+							} else {
+								dimServer_->updateStatistics(statisticsName, boost::lexical_cast<longlong>(statistics));
+							}
+
+							std::cout << "Received: " << statisticsMessage
+									<< std::endl;
+
+						}
+					}
+				} else {
+					std::cerr << "Timeout" << std::endl;
 				}
-			} else {
-				std::cerr << "Timeout" << std::endl;
 			}
+
+			dimServer_->updateState(OFF);
+			message_queue::remove("state");
+			std::cerr << "done" << std::endl;
+
+		} catch (interprocess_exception &ex) {
+			message_queue::remove("state");
+			std::cerr << "Unable to connect to message queue: " << ex.what()
+					<< std::endl;
+			boost::system::error_code noError;
 		}
-
-		dimServer_->updateState(OFF);
-		message_queue::remove("state");
-		std::cerr << "done" << std::endl;
-
-	} catch (interprocess_exception &ex) {
-		message_queue::remove("state");
-		std::cerr << "Unable to connect to message queue: " << ex.what()
-				<< std::endl;
-		boost::system::error_code noError;
 	}
 }
 
-void MessageQueueConnector::sendCommand(std::string command){
-	if(!commandQueue_){
+void MessageQueueConnector::sendCommand(std::string command) {
+	if (!commandQueue_) {
 		try {
 			commandQueue_.reset(new message_queue(open_only // only create
-						, "command" // name
-						));
-			} catch (interprocess_exception &ex) {
-				commandQueue_.reset();
-				std::cout << "Unable to connect to command message queue: " << ex.what() << std::endl;
-			}
+					, "command" // name
+					));
+		} catch (interprocess_exception &ex) {
+			commandQueue_.reset();
+			std::cout << "Unable to connect to command message queue: "
+					<< ex.what() << std::endl;
+		}
 	}
 	commandQueue_->send(&(command[0]), command.size(), 0);
 }
