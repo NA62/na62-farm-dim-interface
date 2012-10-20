@@ -17,15 +17,18 @@ class FarmStarter: public DimClient {
 public:
 	FarmStarter();
 	virtual ~FarmStarter();
+	void restartFarm();
+	void startFarm();
+	void killFarm();
 
 private:
+	std::string genrateStartParameters();
 	void startFarm(std::string param);
-	void killFarm();
 
 	void infoHandler();
 
-	 DimInfo availableSourceIDs_;
-	 pid_t farmPID_;
+	DimInfo availableSourceIDs_;
+	pid_t farmPID_;
 };
 } /* namespace dim */
 } /* namespace na62 */

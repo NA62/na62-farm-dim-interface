@@ -24,28 +24,47 @@ FarmStarter::~FarmStarter() {
 	// TODO Auto-generated destructor stub
 }
 
+std::string FarmStarter::genrateStartParameters() {
+	char* str = availableSourceIDs_.getString();
+	std::string enabledDetectorIDs(str);
+	return std::string("L0DataSourceIDs=") + enabledDetectorIDs;
+}
+
 void FarmStarter::infoHandler() {
 	DimInfo *curr = getInfo();
 	// get current DimInfo address
 	if (curr == &availableSourceIDs_) {
 		char* str = availableSourceIDs_.getString();
-		std::cerr << "L0DataSourceIDs=" << str << std::endl;
-		//		std::string enabledDetectorIDs(str);
-		//		killFarm();
-		//		startFarm("L0DataSourceIDs=0x04:1,0x08:1,0x0C:1,0x10:1,0x14:1,0x18:1,0x1C:1,0x20:1,0x28:1,");
+		std::string enabledDetectorIDs(str);
+//		killFarm();
+//		startFarm(std::string("L0DataSourceIDs=") + enabledDetectorIDs);
 	}
 }
 
+void FarmStarter::startFarm() {
+	startFarm(genrateStartParameters());
+}
+
+void FarmStarter::restartFarm() {
+	killFarm();
+	startFarm(genrateStartParameters());
+}
+
 void FarmStarter::startFarm(std::string param) {
-	std::cout << "Starting farm program!" << std::endl;
 	farmPID_ = fork();
+	std::cout << "Forked: " << farmPID_ << std::endl;
 	if (farmPID_ == 0) {
 		boost::filesystem::path execPath(Options::FARM_EXEC_PATH);
 
-		char * argv[2];
-		argv[0] = (char*) execPath.filename().string().data();
-		argv[1] = (char*) param.data();
-		execvp(execPath.string().data(), argv);
+		std::cout << "Starting farm program " << execPath.string() << std::endl;
+		std::cerr << (const char*) execPath.filename().string().data()
+				<< (const char*) param.data() << std::endl;
+
+		execl(execPath.string().data(), execPath.filename().string().data(),
+				param.data(), NULL);
+		std::cerr << "Main farm program stopped!" << std::endl;
+		farmPID_ = -1;
+		exit(1);
 	} else if (farmPID_ == -1) {
 		std::cerr << "Forking failed! Unable to start the farm program!"
 				<< std::endl;

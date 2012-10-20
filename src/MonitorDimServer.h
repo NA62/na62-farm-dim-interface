@@ -38,7 +38,7 @@ private:
 	MessageQueueConnector_ptr messageQueueConnector_;
 
 public:
-	MonitorDimServer(MessageQueueConnector_ptr messageQueueConnector_, std::string hostName);
+	MonitorDimServer(MessageQueueConnector_ptr messageQueueConnector_, std::string hostName, FarmStarter& farmStarter);
 
 	virtual ~MonitorDimServer();
 

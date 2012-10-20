@@ -38,14 +38,13 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 
+	FarmStarter starter;
 	MessageQueueConnector_ptr myConnector(
 			new na62::dim::MessageQueueConnector());
 
 	na62::dim::MonitorDimServer_ptr dimServer_(
-			new MonitorDimServer(myConnector, std::string(hostName)));
+			new MonitorDimServer(myConnector, std::string(hostName), starter));
 	myConnector->setDimServer(dimServer_);
-
-	FarmStarter starter;
 
 	myConnector->run();
 

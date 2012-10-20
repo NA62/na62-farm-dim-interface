@@ -47,7 +47,7 @@ void MessageQueueConnector::run() {
 			std::string statisticsMessage;
 			while (true) {
 				boost::posix_time::time_duration timeoutDuration(
-						boost::posix_time::seconds(2));
+						boost::posix_time::seconds(5));
 
 				boost::posix_time::ptime timeout = boost::posix_time::ptime(
 						boost::posix_time::second_clock::universal_time()
@@ -72,11 +72,13 @@ void MessageQueueConnector::run() {
 							std::string statistics = statisticsMessage.substr(
 									statisticsMessage.find(':') + 1);
 
-							if (statistics.find(";")!=std::string::npos) {
+							if (statistics.find(";") != std::string::npos) {
 								dimServer_->updateStatistics(statisticsName,
 										statistics);
 							} else {
-								dimServer_->updateStatistics(statisticsName, boost::lexical_cast<longlong>(statistics));
+								dimServer_->updateStatistics(statisticsName,
+										boost::lexical_cast<longlong>(
+												statistics));
 							}
 
 							std::cout << "Received: " << statisticsMessage
@@ -110,12 +112,21 @@ void MessageQueueConnector::sendCommand(std::string command) {
 					));
 		} catch (interprocess_exception &ex) {
 			commandQueue_.reset();
-			std::cout << "Unable to connect to command message queue: "
+			std::cerr << "Unable to connect to command message queue: "
 					<< ex.what() << std::endl;
+			return;
 		}
 	}
-	commandQueue_->send(&(command[0]), command.size(), 0);
+	try {
+		if (!commandQueue_->try_send(&(command[0]), command.size(), 0)) {
+			std::cout << "Unable to send command to program via IPC! "
+					<< std::endl;
+			commandQueue_.reset();
+		}
+	} catch (interprocess_exception &ex) {
+		std::cout << "Unable to send command to program via IPC! " << std::endl;
+		commandQueue_.reset();
+	}
 }
-
 } /* namespace dim */
 } /* namespace na62 */
