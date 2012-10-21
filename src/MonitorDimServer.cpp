@@ -43,7 +43,7 @@ MonitorDimServer::MonitorDimServer(
 		longlongStatisticServices_[KnownLongLongServices[i]] = ptr;
 	}
 
-	start("PCFARM");
+	start(hostName.data());
 }
 
 MonitorDimServer::~MonitorDimServer() {

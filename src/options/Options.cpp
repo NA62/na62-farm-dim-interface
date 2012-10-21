@@ -18,6 +18,7 @@ namespace po = boost::program_options;
  */
 bool Options::VERBOSE;
 std::string Options::FARM_EXEC_PATH;
+long Options::HEARTBEAT_TIMEOUT_MILLIS;
 
 void Options::PrintVM(po::variables_map vm) {
 	using namespace po;
@@ -43,7 +44,8 @@ void Options::Initialize(int argc, char* argv[]) {
 	po::options_description desc("Allowed options");
 	desc.add_options()(OPTION_HELP, "Produce help message")(OPTION_VERBOSE, "Verbose mode")(OPTION_CONFIG_FILE,
 			po::value<std::string>()->default_value("/etc/na62-farm-dim.conf"), "Config file for these options")
-			(OPTION_FARM_EXEC_Path, 	po::value<std::string>()->required(), "Path to the executable farm program");
+			(OPTION_FARM_EXEC_Path, 	po::value<std::string>()->required(), "Path to the executable farm program")
+			(OPTION_HEARTBEAT_TIMEOUT_MILLIS, po::value<int>()->required(), "Number of milliseconds that have to pass without receiving a heart beat from the farm program until we go into error mode.");
 
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -67,6 +69,8 @@ void Options::Initialize(int argc, char* argv[]) {
 	if (!boost::filesystem::exists(FARM_EXEC_PATH)) {
 		throw BadOption(OPTION_FARM_EXEC_Path, "File does not exist!");
 	}
+
+	HEARTBEAT_TIMEOUT_MILLIS = vm[OPTION_HEARTBEAT_TIMEOUT_MILLIS].as<int>();
 }
 } /* namespace dim */
 } /* namespace na62 */

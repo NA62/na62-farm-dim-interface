@@ -39,6 +39,7 @@ namespace dim {
 #define OPTION_CONFIG_FILE (char*)"configFile"
 
 #define OPTION_FARM_EXEC_Path (char*)"farmExecPath"
+#define OPTION_HEARTBEAT_TIMEOUT_MILLIS (char*)"hearbeatTimeoutMillis"
 
 class Options {
 public:
@@ -53,6 +54,7 @@ public:
 
 	static std::string FARM_EXEC_PATH;
 
+	static long HEARTBEAT_TIMEOUT_MILLIS;
 };
 }/* namespace dim */
 }/* namespace na62 */

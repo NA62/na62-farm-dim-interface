@@ -8,6 +8,7 @@
 #include <boost/lexical_cast.hpp>
 #include "MonitorDimServer.h"
 #include "States.h"
+#include "options/Options.h"
 
 #include "MessageQueueConnector.h"
 
@@ -47,7 +48,7 @@ void MessageQueueConnector::run() {
 			std::string statisticsMessage;
 			while (true) {
 				boost::posix_time::time_duration timeoutDuration(
-						boost::posix_time::seconds(5));
+						boost::posix_time::milliseconds(Options::HEARTBEAT_TIMEOUT_MILLIS));
 
 				boost::posix_time::ptime timeout = boost::posix_time::ptime(
 						boost::posix_time::second_clock::universal_time()
