@@ -75,6 +75,10 @@ void FarmStarter::killFarm() {
 	if (farmPID_ > 0) {
 		kill(farmPID_, SIGKILL);
 	}
+	sleep(1);
+	boost::filesystem::path execPath(Options::FARM_EXEC_PATH);
+	std::cerr << "Killing " << execPath.filename() << std::endl;
+	system(std::string("killall -9 " + execPath.filename().string()).data());
 }
 } /* namespace dim */
 } /* namespace na62 */

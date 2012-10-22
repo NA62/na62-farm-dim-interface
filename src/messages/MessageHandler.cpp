@@ -26,7 +26,7 @@ int MessageHandler::overflow(int c) {
 	return c;
 }
 
-MessageHandler mH(stdout);
+MessageHandler mH(stdout, false);
 MessageHandler eH(stderr, true);
 // initialize output streams with the output buffers
 std::ostream mycout(&mH);

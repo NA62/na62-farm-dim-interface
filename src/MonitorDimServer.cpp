@@ -14,10 +14,11 @@ std::string KnownMultiStatServices[] = { "DetectorData", "L1TriggerData",
 		"L2TriggerData" };
 std::string KnownLongLongServices[] = { "BytesToMerger", "EventsToMerger",
 		"L1MTPsSent", "L1TriggersSent", "PF_PacksReceived", "PF_BytesReceived",
-		"PF_PacksDroppedMaster", "PF_PacksDroppedWorker" };
+		"PF_PacksDropped" };
 
 MonitorDimServer::MonitorDimServer(
-		MessageQueueConnector_ptr messageQueueConnector, std::string hostName, FarmStarter& farmStarter) :
+		MessageQueueConnector_ptr messageQueueConnector, std::string hostName,
+		FarmStarter& farmStarter) :
 		hostName_(hostName), cmdh(hostName, messageQueueConnector, farmStarter), initialState_(
 				OFF), stateService_(std::string(hostName + "/State").data(),
 				initialState_), messageQueueConnector_(messageQueueConnector) {

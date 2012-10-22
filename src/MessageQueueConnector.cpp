@@ -78,10 +78,10 @@ void MessageQueueConnector::run() {
 										boost::lexical_cast<longlong>(
 												statistics));
 							}
-
-							mycout << "Received: " << statisticsMessage
-									<< std::endl;
-
+							if (Options::VERBOSE) {
+								std::cout << "Received: " << statisticsMessage
+										<< std::endl;
+							}
 						}
 					}
 				} else {
