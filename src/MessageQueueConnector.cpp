@@ -47,15 +47,12 @@ void MessageQueueConnector::run() {
 
 			std::string statisticsMessage;
 			while (true) {
-				boost::posix_time::time_duration timeoutDuration(
-						boost::posix_time::milliseconds(Options::HEARTBEAT_TIMEOUT_MILLIS));
-
-				boost::posix_time::ptime timeout = boost::posix_time::ptime(
-						boost::posix_time::second_clock::universal_time()
-								+ timeoutDuration);
+				boost::posix_time::ptime t = microsec_clock::universal_time()
+						+ boost::posix_time::milliseconds(
+								Options::HEARTBEAT_TIMEOUT_MILLIS);
 
 				if (stateQueue.timed_receive(&state, sizeof(int), recvd_size,
-						priority, timeout)) {
+						priority, t)) {
 					dimServer_->updateState(state);
 					std::cerr << "Received state" << state << " : " << priority
 							<< std::endl;
