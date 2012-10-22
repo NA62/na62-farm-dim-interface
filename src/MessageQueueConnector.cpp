@@ -54,7 +54,7 @@ void MessageQueueConnector::run() {
 				if (stateQueue.timed_receive(&state, sizeof(int), recvd_size,
 						priority, t)) {
 					dimServer_->updateState(state);
-					std::cerr << "Received state" << state << " : " << priority
+					mycout << "Received state" << state << " : " << priority
 							<< std::endl;
 
 					while (statisticsQueue.get_num_msg() > 0) {
@@ -79,23 +79,23 @@ void MessageQueueConnector::run() {
 												statistics));
 							}
 
-							std::cout << "Received: " << statisticsMessage
+							mycout << "Received: " << statisticsMessage
 									<< std::endl;
 
 						}
 					}
 				} else {
-					std::cerr << "Timeout" << std::endl;
+					mycerr << "Timeout" << std::endl;
 				}
 			}
 
 			dimServer_->updateState(OFF);
 			message_queue::remove("state");
-			std::cerr << "done" << std::endl;
+			mycout << "done" << std::endl;
 
 		} catch (interprocess_exception &ex) {
 			message_queue::remove("state");
-			std::cerr << "Unable to connect to message queue: " << ex.what()
+			mycerr << "Unable to connect to message queue: " << ex.what()
 					<< std::endl;
 			boost::system::error_code noError;
 		}
@@ -110,19 +110,19 @@ void MessageQueueConnector::sendCommand(std::string command) {
 					));
 		} catch (interprocess_exception &ex) {
 			commandQueue_.reset();
-			std::cerr << "Unable to connect to command message queue: "
+			mycerr << "Unable to connect to command message queue: "
 					<< ex.what() << std::endl;
 			return;
 		}
 	}
 	try {
 		if (!commandQueue_->try_send(&(command[0]), command.size(), 0)) {
-			std::cout << "Unable to send command to program via IPC! "
+			mycout << "Unable to send command to program via IPC! "
 					<< std::endl;
 			commandQueue_.reset();
 		}
 	} catch (interprocess_exception &ex) {
-		std::cout << "Unable to send command to program via IPC! " << std::endl;
+		mycout << "Unable to send command to program via IPC! " << std::endl;
 		commandQueue_.reset();
 	}
 }

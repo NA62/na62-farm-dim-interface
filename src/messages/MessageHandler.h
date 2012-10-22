@@ -10,20 +10,29 @@
 
 #include <iostream>
 #include <boost/thread.hpp>
+#include <stdio.h>
+#include <streambuf>
 
 namespace na62 {
+namespace dim {
 
-// forward Declaration
-class SQLConnector;
-
-class MessageHandler {
+class MessageHandler: public std::streambuf {
 public:
-	static void Write(const std::string& message);
-	static void Write(const std::string& message, const std::string& tableName);
+	MessageHandler(FILE * stream, bool ignoreVerbose=false) :
+			stream_(stream) , ignoreVerbose_(ignoreVerbose){
+	}
+protected:
+	/* central output function
+	 * - print characters in uppercase mode
+	 */
+	virtual int overflow(int c);
 private:
-	static boost::mutex echoMutex;
-	static SQLConnector* sqlConnector;
+	FILE* stream_;
+	bool ignoreVerbose_;
 };
 
+extern std::ostream mycout;
+extern std::ostream mycerr;
+} /* namespace dim */
 } /* namespace na62 */
 #endif /* MESSAGEHANDLER_H_ */

@@ -1,26 +1,36 @@
 /*
  * MessageHandler.cpp
  *
- *  Created on: Nov 14, 2011
- *      Author: kunzejo
+ *  Created on: Oct 22, 2012
+ *      Author: root
  */
 
-#include "../options/Options.h"
 #include "MessageHandler.h"
+#include "../options/Options.h"
+#include <streambuf>
 
 namespace na62 {
+namespace dim {
 
-boost::mutex MessageHandler::echoMutex;
-//SQLConnector* MessageHandler::sqlConnector = NULL;
+int MessageHandler::overflow(int c) {
+	if (!ignoreVerbose_ && !Options::VERBOSE) {
+		return EOF;
+	}
 
-void MessageHandler::Write(const std::string& message) {
-	Write(message, "Message");
+	if (c != EOF) {
+		// and write the character to the standard output
+		if (putc(c, stream_) == EOF) {
+			return EOF;
+		}
+	}
+	return c;
 }
 
-void MessageHandler::Write(const std::string& message,
-		const std::string& tableName) {
-	boost::lock_guard<boost::mutex> lock(echoMutex); // Will lock until return
-	std::cerr << message << std::endl;
-}
+MessageHandler mH(stdout);
+MessageHandler eH(stderr, true);
+// initialize output streams with the output buffers
+std::ostream mycout(&mH);
+std::ostream mycerr(&eH);
 
+} /* namespace dim */
 } /* namespace na62 */

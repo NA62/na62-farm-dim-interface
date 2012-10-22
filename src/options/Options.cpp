@@ -23,18 +23,18 @@ long Options::HEARTBEAT_TIMEOUT_MILLIS;
 void Options::PrintVM(po::variables_map vm) {
 	using namespace po;
 	for (variables_map::iterator it = vm.begin(); it != vm.end(); ++it) {
-		std::cout << it->first << "=";
+		mycout << it->first << "=";
 
 		const variable_value& v = it->second;
 		if (!v.empty()) {
 			const std::type_info& type = v.value().type();
 			if (type == typeid(::std::string)) {
-				std::cout << v.as<std::string>();
+				mycout << v.as<std::string>();
 			} else if (type == typeid(int)) {
-				std::cout << v.as<int>();
+				mycout << v.as<int>();
 			}
 		}
-		std::cout << std::endl;
+		mycout << std::endl;
 	}
 }
 /**
@@ -51,16 +51,16 @@ void Options::Initialize(int argc, char* argv[]) {
 	po::store(po::parse_command_line(argc, argv, desc), vm);
 
 	if (vm.count(OPTION_HELP)) {
-		std::cout << desc << "\n";
+		mycout << desc << "\n";
 		exit(EXIT_SUCCESS);
 	}
 
-	std::cout << "=======Reading config file " << vm[OPTION_CONFIG_FILE ].as<std::string>() << std::endl;
+	mycout << "=======Reading config file " << vm[OPTION_CONFIG_FILE ].as<std::string>() << std::endl;
 	po::store(po::parse_config_file<char>(vm[OPTION_CONFIG_FILE ].as<std::string>().data(), desc), vm);
 	po::store(po::parse_command_line(argc, argv, desc), vm);
 	po::notify(vm); // Check the configuration
 
-	std::cout << "=======Running with following configuration:" << std::endl;
+	mycout << "=======Running with following configuration:" << std::endl;
 	PrintVM(vm);
 
 	VERBOSE = vm.count(OPTION_VERBOSE) > 0;

@@ -15,7 +15,7 @@
 #include <unistd.h>
 
 #include "options/Options.h"
-
+#include "messages/MessageHandler.h"
 #include "MonitorDimServer.h"
 #include "MessageQueueConnector.h"
 #include "FarmStarter.h"
@@ -28,13 +28,13 @@ int main(int argc, char* argv[]) {
 	/*
 	 * Read program parameters
 	 */
-	std::cout << "Initializing Options" << std::endl;
+	mycout << "Initializing Options" << std::endl;
 	Options::Initialize(argc, argv);
 
 	char hostName[1024];
 	hostName[1023] = '\0';
 	if (gethostname(hostName, 1023)) {
-		std::cerr << "Unable to get host name! Refusing to start." << std::endl;
+		mycerr << "Unable to get host name! Refusing to start.";
 		exit(1);
 	}
 

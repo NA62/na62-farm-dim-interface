@@ -52,21 +52,21 @@ void FarmStarter::restartFarm() {
 
 void FarmStarter::startFarm(std::string param) {
 	farmPID_ = fork();
-	std::cout << "Forked: " << farmPID_ << std::endl;
+	mycout << "Forked: " << farmPID_ << std::endl;
 	if (farmPID_ == 0) {
 		boost::filesystem::path execPath(Options::FARM_EXEC_PATH);
 
-		std::cout << "Starting farm program " << execPath.string() << std::endl;
-		std::cerr << (const char*) execPath.filename().string().data()
+		mycout << "Starting farm program " << execPath.string() << std::endl;
+		mycerr << (const char*) execPath.filename().string().data()
 				<< (const char*) param.data() << std::endl;
 
 		execl(execPath.string().data(), execPath.filename().string().data(),
 				param.data(), NULL);
-		std::cerr << "Main farm program stopped!" << std::endl;
+		mycerr << "Main farm program stopped!" << std::endl;
 		farmPID_ = -1;
 		exit(1);
 	} else if (farmPID_ == -1) {
-		std::cerr << "Forking failed! Unable to start the farm program!"
+		mycerr << "Forking failed! Unable to start the farm program!"
 				<< std::endl;
 	}
 }

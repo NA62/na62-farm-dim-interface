@@ -11,13 +11,13 @@
 #include "NA62Error.h"
 
 namespace na62 {
-
-class BrokenPacketReceivedError: public na62::NA62Error {
+namespace dim {
+class BrokenPacketReceivedError: public NA62Error {
 public:
 	BrokenPacketReceivedError(const std::string& message) :
-			na62::NA62Error(message) {
+			NA62Error(message) {
 	}
 };
-
+} //namespace dim
 } //namespace na62
 #endif /* BROKENPACKETRECEIVEDERROR_H_ */

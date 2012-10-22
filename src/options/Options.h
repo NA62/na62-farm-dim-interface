@@ -20,7 +20,6 @@
 
 #include "../exceptions/BadOption.h"
 #include "../exceptions/UnknownSourceIDFound.h"
-#include "../messages/WarningHandler.h"
 #include "../utils/Utils.h"
 
 namespace na62 {

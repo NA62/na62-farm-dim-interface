@@ -11,6 +11,7 @@
 #include <dim/dis.hxx>
 #include <iostream>
 
+#include "messages/MessageHandler.h"
 #include "FarmStarter.h"
 #include "MessageQueueConnector.h"
 
@@ -36,7 +37,7 @@ public:
 		std::string message;
 		message.resize(currCmnd->getSize());
 		message = std::string(currCmnd->getString());
-		std::cout << "Received message: " << message << std::endl;
+		mycout << "Received message: " << message << std::endl;
 
 		std::transform(message.begin(), message.end(), message.begin(),
 				::tolower);

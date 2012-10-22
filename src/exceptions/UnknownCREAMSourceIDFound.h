@@ -12,15 +12,15 @@
 #include "NA62Error.h"
 
 namespace na62 {
-
-class UnknownCREAMSourceIDFound: public na62::NA62Error {
+namespace dim {
+class UnknownCREAMSourceIDFound: public NA62Error {
 public:
 	UnknownCREAMSourceIDFound(uint8_t crateID, uint8_t creamNum) :
-			na62::NA62Error(
+			NA62Error(
 					"Unknown CREAM source ID: CREAM " + boost::lexical_cast<std::string>((int) creamNum) + " in crate "
 							+ boost::lexical_cast<std::string>((int) crateID) + "\n Check the corresponding field in the Options file!") {
 	}
 };
-
+} //namespace dim
 } //namespace na62
 #endif /* UNDNOWNCREAMSOURCEIDFOUND_H_ */
