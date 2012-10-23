@@ -40,6 +40,9 @@ namespace dim {
 #define OPTION_FARM_EXEC_Path (char*)"farmExecPath"
 #define OPTION_HEARTBEAT_TIMEOUT_MILLIS (char*)"hearbeatTimeoutMillis"
 
+#define OPTION_MULTI_STAT_SERVICES (char*)"multiStatServices"
+#define OPTION_LONGLONG_SERVICES (char*)"singlelongServices"
+
 class Options {
 public:
 	static void PrintVM(boost::program_options::variables_map vm);
@@ -54,6 +57,9 @@ public:
 	static std::string FARM_EXEC_PATH;
 
 	static long HEARTBEAT_TIMEOUT_MILLIS;
+
+	static std::vector<std::string> MULTI_STAT_SERVICES;
+	static std::vector<std::string> LONGLONG_SERVICES;
 };
 }/* namespace dim */
 }/* namespace na62 */

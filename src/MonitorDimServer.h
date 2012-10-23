@@ -16,8 +16,6 @@
 #include "States.h"
 #include "MyCommandHandler.h"
 
-//#include "MessageQueueConnector.h"
-
 namespace na62 {
 namespace dim {
 class MessageQueueConnector;
@@ -33,7 +31,6 @@ private:
 	DimService stateService_;
 	std::map<std::string, DimService_ptr> multiStatisticServices_;
 	std::map<std::string, DimService_ptr> longlongStatisticServices_;
-
 
 	MessageQueueConnector_ptr messageQueueConnector_;
 

@@ -19,6 +19,8 @@ namespace po = boost::program_options;
 bool Options::VERBOSE;
 std::string Options::FARM_EXEC_PATH;
 long Options::HEARTBEAT_TIMEOUT_MILLIS;
+std::vector<std::string> Options::MULTI_STAT_SERVICES;
+std::vector<std::string> Options::LONGLONG_SERVICES;
 
 void Options::PrintVM(po::variables_map vm) {
 	using namespace po;
@@ -42,10 +44,18 @@ void Options::PrintVM(po::variables_map vm) {
  */
 void Options::Initialize(int argc, char* argv[]) {
 	po::options_description desc("Allowed options");
-	desc.add_options()(OPTION_HELP, "Produce help message")(OPTION_VERBOSE, "Verbose mode")(OPTION_CONFIG_FILE,
-			po::value<std::string>()->default_value("/etc/na62-farm-dim.conf"), "Config file for these options")
-			(OPTION_FARM_EXEC_Path, 	po::value<std::string>()->required(), "Path to the executable farm program")
-			(OPTION_HEARTBEAT_TIMEOUT_MILLIS, po::value<int>()->required(), "Number of milliseconds that have to pass without receiving a heart beat from the farm program until we go into error mode.");
+	desc.add_options()(OPTION_HELP, "Produce help message")(OPTION_VERBOSE,
+			"Verbose mode")(OPTION_CONFIG_FILE,
+			po::value<std::string>()->default_value("/etc/na62-farm-dim.conf"),
+			"Config file for these options")(OPTION_FARM_EXEC_Path,
+			po::value<std::string>()->required(),
+			"Path to the executable farm program")(
+			OPTION_HEARTBEAT_TIMEOUT_MILLIS, po::value<int>()->required(),
+			"Number of milliseconds that have to pass without receiving a heart beat from the farm program until we go into error mode.")(
+			OPTION_MULTI_STAT_SERVICES, po::value<std::string>()->required(),
+			"Comma separated (S1,S2,S3...) list of services with multiple stats like \"A:a;B:b\"")(
+			OPTION_LONGLONG_SERVICES, po::value<std::string>()->required(),
+			"Comma separated list (S1,S2,S3...) of services with single long values.");
 
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -55,8 +65,12 @@ void Options::Initialize(int argc, char* argv[]) {
 		exit(EXIT_SUCCESS);
 	}
 
-	mycout << "=======Reading config file " << vm[OPTION_CONFIG_FILE ].as<std::string>() << std::endl;
-	po::store(po::parse_config_file<char>(vm[OPTION_CONFIG_FILE ].as<std::string>().data(), desc), vm);
+	mycout << "=======Reading config file "
+			<< vm[OPTION_CONFIG_FILE ].as<std::string>() << std::endl;
+	po::store(
+			po::parse_config_file<char>(
+					vm[OPTION_CONFIG_FILE ].as<std::string>().data(), desc),
+			vm);
 	po::store(po::parse_command_line(argc, argv, desc), vm);
 	po::notify(vm); // Check the configuration
 
@@ -70,7 +84,14 @@ void Options::Initialize(int argc, char* argv[]) {
 		throw BadOption(OPTION_FARM_EXEC_Path, "File does not exist!");
 	}
 
-	HEARTBEAT_TIMEOUT_MILLIS = vm[OPTION_HEARTBEAT_TIMEOUT_MILLIS].as<int>();
+	HEARTBEAT_TIMEOUT_MILLIS = vm[OPTION_HEARTBEAT_TIMEOUT_MILLIS ].as<int>();
+
+	boost::split(MULTI_STAT_SERVICES,
+			vm[OPTION_MULTI_STAT_SERVICES ].as<std::string>(),
+			boost::is_any_of(","));
+	boost::split(LONGLONG_SERVICES,
+			vm[OPTION_LONGLONG_SERVICES ].as<std::string>(),
+			boost::is_any_of(","));
 }
 } /* namespace dim */
 } /* namespace na62 */

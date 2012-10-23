@@ -22,8 +22,6 @@
 
 using namespace na62::dim;
 
-boost::asio::io_service io_service;
-
 int main(int argc, char* argv[]) {
 	/*
 	 * Read program parameters
@@ -34,7 +32,7 @@ int main(int argc, char* argv[]) {
 	char hostName[1024];
 	hostName[1023] = '\0';
 	if (gethostname(hostName, 1023)) {
-		mycerr << "Unable to get host name! Refusing to start.";
+		std::cerr << "Unable to get host name! Refusing to start.";
 		exit(1);
 	}
 

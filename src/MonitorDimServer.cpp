@@ -5,16 +5,17 @@
  *      Author: kunzejo
  */
 
+#include "options/Options.h"
 #include "MessageQueueConnector.h"
 #include "MonitorDimServer.h"
 
 namespace na62 {
 namespace dim {
-std::string KnownMultiStatServices[] = { "DetectorData", "L1TriggerData",
-		"L2TriggerData" };
-std::string KnownLongLongServices[] = { "BytesToMerger", "EventsToMerger",
-		"L1MTPsSent", "L1TriggersSent", "PF_PacksReceived", "PF_BytesReceived",
-		"PF_PacksDropped" };
+//std::string KnownMultiStatServices[] = { "DetectorData", "L1TriggerData",
+//		"L2TriggerData" };
+//std::string KnownLongLongServices[] = { "BytesToMerger", "EventsToMerger",
+//		"L1MTPsSent", "L1TriggersSent", "PF_PacksReceived", "PF_BytesReceived",
+//		"PF_PacksDropped" };
 
 MonitorDimServer::MonitorDimServer(
 		MessageQueueConnector_ptr messageQueueConnector, std::string hostName,
@@ -23,25 +24,23 @@ MonitorDimServer::MonitorDimServer(
 				OFF), stateService_(std::string(hostName + "/State").data(),
 				initialState_), messageQueueConnector_(messageQueueConnector) {
 
-	for (unsigned int i = 0;
-			i < sizeof(KnownMultiStatServices) / sizeof(std::string); i++) {
+	for (unsigned int i = 0; i < Options::MULTI_STAT_SERVICES.size(); i++) {
 		std::string serviceName = std::string(
-				hostName + "/" + KnownMultiStatServices[i]);
+				hostName + "/" + Options::MULTI_STAT_SERVICES[i]);
 		mycout << "Starting service " << serviceName << std::endl;
 
 		DimService_ptr ptr(new DimService(serviceName.data(), (char*) ""));
-		multiStatisticServices_[KnownMultiStatServices[i]] = ptr;
+		multiStatisticServices_[Options::MULTI_STAT_SERVICES[i]] = ptr;
 	}
 
 	longlong initialVal = 0;
-	for (unsigned int i = 0;
-			i < sizeof(KnownLongLongServices) / sizeof(std::string); i++) {
+	for (unsigned int i = 0; i < Options::LONGLONG_SERVICES.size(); i++) {
 		std::string serviceName = std::string(
-				hostName + "/" + KnownLongLongServices[i]);
+				hostName + "/" + Options::LONGLONG_SERVICES[i]);
 		mycout << "Starting service " << serviceName << std::endl;
 
 		DimService_ptr ptr(new DimService(serviceName.data(), initialVal));
-		longlongStatisticServices_[KnownLongLongServices[i]] = ptr;
+		longlongStatisticServices_[Options::LONGLONG_SERVICES[i]] = ptr;
 	}
 
 	start(hostName.data());
