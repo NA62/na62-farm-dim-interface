@@ -11,11 +11,6 @@
 
 namespace na62 {
 namespace dim {
-//std::string KnownMultiStatServices[] = { "DetectorData", "L1TriggerData",
-//		"L2TriggerData" };
-//std::string KnownLongLongServices[] = { "BytesToMerger", "EventsToMerger",
-//		"L1MTPsSent", "L1TriggersSent", "PF_PacksReceived", "PF_BytesReceived",
-//		"PF_PacksDropped" };
 
 MonitorDimServer::MonitorDimServer(
 		MessageQueueConnector_ptr messageQueueConnector, std::string hostName,
@@ -62,8 +57,10 @@ void MonitorDimServer::updateStatistics(std::string serviceName,
 		mycerr << "Unknown service: " << serviceName << std::endl;
 		return;
 	}
-	multiStatisticServices_[serviceName]->updateService(
-			(char*) statistics.data());
+	if (multiStatisticServices_[serviceName]->updateService(
+			(char*) statistics.data()) <= 0) {
+		mycerr << "Unable to update Service: " << serviceName << std::endl;
+	}
 }
 
 void MonitorDimServer::updateStatistics(std::string serviceName,

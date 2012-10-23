@@ -10,12 +10,13 @@
 
 #include <dim/dic.hxx>
 
+#include "MessageQueueConnector.h"
 namespace na62 {
 namespace dim {
 
 class FarmStarter: public DimClient {
 public:
-	FarmStarter();
+	FarmStarter(MessageQueueConnector_ptr myConnector);
 	virtual ~FarmStarter();
 	void restartFarm();
 	void startFarm();
@@ -28,7 +29,10 @@ private:
 	void infoHandler();
 
 	DimInfo availableSourceIDs_;
+	DimInfo burstNumber_;
+	DimInfo runNumber_;
 	pid_t farmPID_;
+	MessageQueueConnector_ptr myConnector_;
 };
 } /* namespace dim */
 } /* namespace na62 */

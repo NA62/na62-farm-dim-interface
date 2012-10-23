@@ -59,6 +59,12 @@ void MessageQueueConnector::run() {
 
 					while (statisticsQueue.get_num_msg() > 0) {
 						statisticsMessage.resize(1024 * 64);
+
+						if (Options::VERBOSE) {
+							std::cout << "Received: " << statisticsMessage
+									<< std::endl;
+						}
+
 						if (statisticsQueue.try_receive(&(statisticsMessage[0]),
 								statisticsMessage.size(), recvd_size,
 								priority)) {
@@ -70,17 +76,20 @@ void MessageQueueConnector::run() {
 							std::string statistics = statisticsMessage.substr(
 									statisticsMessage.find(':') + 1);
 
-							if (statistics.find(";") != std::string::npos) {
-								dimServer_->updateStatistics(statisticsName,
-										statistics);
-							} else {
-								dimServer_->updateStatistics(statisticsName,
-										boost::lexical_cast<longlong>(
-												statistics));
-							}
-							if (Options::VERBOSE) {
-								std::cout << "Received: " << statisticsMessage
-										<< std::endl;
+							try {
+								if (statistics.find(";") != std::string::npos) {
+									dimServer_->updateStatistics(statisticsName,
+											statistics);
+								} else {
+									dimServer_->updateStatistics(statisticsName,
+											boost::lexical_cast<longlong>(
+													statistics));
+								}
+							} catch (boost::bad_lexical_cast const& e) {
+								std::cout
+										<< "Bad format of message for service "
+										<< statisticsName << ": "
+										<< statisticsMessage << std::endl;
 							}
 						}
 					}

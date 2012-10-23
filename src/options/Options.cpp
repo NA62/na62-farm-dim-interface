@@ -22,6 +22,8 @@ long Options::HEARTBEAT_TIMEOUT_MILLIS;
 std::vector<std::string> Options::MULTI_STAT_SERVICES;
 std::vector<std::string> Options::LONGLONG_SERVICES;
 
+bool Options::IS_MERGER;
+
 void Options::PrintVM(po::variables_map vm) {
 	using namespace po;
 	for (variables_map::iterator it = vm.begin(); it != vm.end(); ++it) {
@@ -55,7 +57,8 @@ void Options::Initialize(int argc, char* argv[]) {
 			OPTION_MULTI_STAT_SERVICES, po::value<std::string>()->required(),
 			"Comma separated (S1,S2,S3...) list of services with multiple stats like \"A:a;B:b\"")(
 			OPTION_LONGLONG_SERVICES, po::value<std::string>()->required(),
-			"Comma separated list (S1,S2,S3...) of services with single long values.");
+			"Comma separated list (S1,S2,S3...) of services with single long values.")
+			(OPTION_IS_MERGER, po::value<int>()->required(), "Set 1 if this is the dim connector for a merger and 0 if it is running on a farm PC.");
 
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -92,6 +95,8 @@ void Options::Initialize(int argc, char* argv[]) {
 	boost::split(LONGLONG_SERVICES,
 			vm[OPTION_LONGLONG_SERVICES ].as<std::string>(),
 			boost::is_any_of(","));
+
+	IS_MERGER=vm[OPTION_IS_MERGER].as<int>()>0;
 }
 } /* namespace dim */
 } /* namespace na62 */

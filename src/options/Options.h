@@ -42,6 +42,7 @@ namespace dim {
 
 #define OPTION_MULTI_STAT_SERVICES (char*)"multiStatServices"
 #define OPTION_LONGLONG_SERVICES (char*)"singlelongServices"
+#define OPTION_IS_MERGER (char*)"isMerger"
 
 class Options {
 public:
@@ -60,6 +61,8 @@ public:
 
 	static std::vector<std::string> MULTI_STAT_SERVICES;
 	static std::vector<std::string> LONGLONG_SERVICES;
+
+	static bool IS_MERGER;
 };
 }/* namespace dim */
 }/* namespace na62 */

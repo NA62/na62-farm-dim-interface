@@ -15,9 +15,11 @@
 namespace na62 {
 namespace dim {
 
-FarmStarter::FarmStarter() :
-		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), farmPID_(
-				-1) {
+FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
+		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), burstNumber_(
+				"RunControl/BurstNumber", -1, this), runNumber_(
+				"RunControl/RunNumber", -1, this), farmPID_(-1), myConnector_(
+				myConnector) {
 }
 
 FarmStarter::~FarmStarter() {
@@ -25,29 +27,78 @@ FarmStarter::~FarmStarter() {
 }
 
 std::string FarmStarter::genrateStartParameters() {
-	char* str = availableSourceIDs_.getString();
-	std::string enabledDetectorIDs(str);
-	return std::string("L0DataSourceIDs=") + enabledDetectorIDs;
+	if (Options::IS_MERGER) {
+		/*
+		 * Merger
+		 */
+		return "";
+	} else {
+		/*
+		 * PC Farm
+		 */
+		int currentBurstNum = 0;
+		if (burstNumber_.getSize() <= 0) {
+			throw NA62Error(
+					"Unable to connect to RunNumber service! Refusing to start.");
+		} else {
+			currentBurstNum = burstNumber_.getInt(); // This should always be 0 unless the PC starts during a run!
+		}
+
+		int runNumber = 0;
+		if (runNumber_.getSize() <= 0) {
+			throw NA62Error(
+					"Unable to connect to RunNumber service! Refusing to start.");
+		} else {
+			runNumber = runNumber_.getInt(); // This should always be 0 unless the PC starts during a run!
+		}
+
+		std::string enabledDetectorIDs = "";
+		if (availableSourceIDs_.getSize() <= 0) {
+			throw NA62Error(
+					"Unable to connect to EnabledDetectors  service. Unable to start!");
+		} else {
+			char* str = availableSourceIDs_.getString();
+			enabledDetectorIDs = std::string(str);
+			if (enabledDetectorIDs == "") {
+				throw NA62Error("No Detectors are enabled! Refusing to start.");
+			}
+		}
+
+		return std::string("--L0DataSourceIDs=") + enabledDetectorIDs + " "
+				+ "--firstBurstID="
+				+ boost::lexical_cast<std::string>(currentBurstNum) + " "
+				+ +"--currentRunNumber="
+				+ boost::lexical_cast<std::string>(runNumber);
+	}
 }
 
 void FarmStarter::infoHandler() {
 	DimInfo *curr = getInfo();
 	// get current DimInfo address
-	if (curr == &availableSourceIDs_) {
-		char* str = availableSourceIDs_.getString();
-		std::string enabledDetectorIDs(str);
-//		killFarm();
-//		startFarm(std::string("L0DataSourceIDs=") + enabledDetectorIDs);
+	if (curr == &runNumber_) {
+		int runNumber = runNumber_.getInt();
+		mycout << "Updating RunNumber to " << runNumber << std::endl;
+		myConnector_->sendCommand(
+				"UpdateRunNumber:"
+						+ boost::lexical_cast<std::string>(runNumber));
 	}
 }
 
 void FarmStarter::startFarm() {
-	startFarm(genrateStartParameters());
+	try {
+		startFarm(genrateStartParameters());
+	} catch (NA62Error const& e) {
+		mycerr << e.what() << std::endl;
+	}
 }
 
 void FarmStarter::restartFarm() {
 	killFarm();
-	startFarm(genrateStartParameters());
+	try {
+		startFarm(genrateStartParameters());
+	} catch (NA62Error const& e) {
+		mycerr << e.what() << std::endl;
+	}
 }
 
 void FarmStarter::startFarm(std::string param) {
