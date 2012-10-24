@@ -57,10 +57,8 @@ void MonitorDimServer::updateStatistics(std::string serviceName,
 		mycerr << "Unknown service: " << serviceName << std::endl;
 		return;
 	}
-	if (multiStatisticServices_[serviceName]->updateService(
-			(char*) statistics.data()) <= 0) {
-		mycerr << "Unable to update Service: " << serviceName << std::endl;
-	}
+	multiStatisticServices_[serviceName]->updateService(
+			(char*) statistics.data());
 }
 
 void MonitorDimServer::updateStatistics(std::string serviceName,

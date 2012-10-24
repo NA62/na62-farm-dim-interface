@@ -23,7 +23,7 @@ public:
 	void killFarm();
 
 private:
-	std::string genrateStartParameters();
+	std::string generateStartParameters();
 	void startFarm(std::string param);
 
 	void infoHandler();

@@ -64,11 +64,11 @@ void Options::Initialize(int argc, char* argv[]) {
 	po::store(po::parse_command_line(argc, argv, desc), vm);
 
 	if (vm.count(OPTION_HELP)) {
-		mycout << desc << "\n";
+		std::cout << desc << "\n";
 		exit(EXIT_SUCCESS);
 	}
 
-	mycout << "=======Reading config file "
+	std::cout << "=======Reading config file "
 			<< vm[OPTION_CONFIG_FILE ].as<std::string>() << std::endl;
 	po::store(
 			po::parse_config_file<char>(
@@ -77,7 +77,7 @@ void Options::Initialize(int argc, char* argv[]) {
 	po::store(po::parse_command_line(argc, argv, desc), vm);
 	po::notify(vm); // Check the configuration
 
-	mycout << "=======Running with following configuration:" << std::endl;
+	std::cout << "=======Running with following configuration:" << std::endl;
 	PrintVM(vm);
 
 	VERBOSE = vm.count(OPTION_VERBOSE) > 0;

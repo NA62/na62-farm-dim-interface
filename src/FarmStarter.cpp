@@ -26,7 +26,7 @@ FarmStarter::~FarmStarter() {
 	// TODO Auto-generated destructor stub
 }
 
-std::string FarmStarter::genrateStartParameters() {
+std::string FarmStarter::generateStartParameters() {
 	if (Options::IS_MERGER) {
 		/*
 		 * Merger
@@ -86,7 +86,7 @@ void FarmStarter::infoHandler() {
 
 void FarmStarter::startFarm() {
 	try {
-		startFarm(genrateStartParameters());
+		startFarm(generateStartParameters());
 	} catch (NA62Error const& e) {
 		mycerr << e.what() << std::endl;
 	}
@@ -95,7 +95,7 @@ void FarmStarter::startFarm() {
 void FarmStarter::restartFarm() {
 	killFarm();
 	try {
-		startFarm(genrateStartParameters());
+		startFarm(generateStartParameters());
 	} catch (NA62Error const& e) {
 		mycerr << e.what() << std::endl;
 	}
