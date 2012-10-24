@@ -23,8 +23,8 @@ public:
 	void killFarm();
 
 private:
-	std::string generateStartParameters();
-	void startFarm(std::string param);
+	std::vector<std::string> generateStartParameters();
+	void startFarm(std::vector<std::string> param);
 
 	void infoHandler();
 

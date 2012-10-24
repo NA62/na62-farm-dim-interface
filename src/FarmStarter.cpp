@@ -26,12 +26,25 @@ FarmStarter::~FarmStarter() {
 	// TODO Auto-generated destructor stub
 }
 
-std::string FarmStarter::generateStartParameters() {
+std::vector<std::string> FarmStarter::generateStartParameters() {
+	std::vector<std::string> argv;
 	if (Options::IS_MERGER) {
 		/*
 		 * Merger
 		 */
-		return "";
+		int runNumber = 0;
+		if (runNumber_.getSize() <= 0) {
+			throw NA62Error(
+					"Unable to connect to RunNumber service! Refusing to start.");
+		} else {
+			runNumber = runNumber_.getInt(); // This should always be 0 unless the PC starts during a run!
+		}
+
+		argv.push_back(
+				"--currentRunNumber="
+						+ boost::lexical_cast<std::string>(runNumber));
+		return argv;
+		return argv;
 	} else {
 		/*
 		 * PC Farm
@@ -42,14 +55,6 @@ std::string FarmStarter::generateStartParameters() {
 					"Unable to connect to RunNumber service! Refusing to start.");
 		} else {
 			currentBurstNum = burstNumber_.getInt(); // This should always be 0 unless the PC starts during a run!
-		}
-
-		int runNumber = 0;
-		if (runNumber_.getSize() <= 0) {
-			throw NA62Error(
-					"Unable to connect to RunNumber service! Refusing to start.");
-		} else {
-			runNumber = runNumber_.getInt(); // This should always be 0 unless the PC starts during a run!
 		}
 
 		std::string enabledDetectorIDs = "";
@@ -64,11 +69,11 @@ std::string FarmStarter::generateStartParameters() {
 			}
 		}
 
-		return std::string("--L0DataSourceIDs=") + enabledDetectorIDs + " "
-				+ "--firstBurstID="
-				+ boost::lexical_cast<std::string>(currentBurstNum) + " "
-				+ +"--currentRunNumber="
-				+ boost::lexical_cast<std::string>(runNumber);
+		argv.push_back("--L0DataSourceIDs=" + enabledDetectorIDs);
+		argv.push_back(
+				"--firstBurstID="
+						+ boost::lexical_cast<std::string>(currentBurstNum));
+		return argv;
 	}
 }
 
@@ -101,18 +106,25 @@ void FarmStarter::restartFarm() {
 	}
 }
 
-void FarmStarter::startFarm(std::string param) {
+void FarmStarter::startFarm(std::vector<std::string> params) {
 	farmPID_ = fork();
 	mycout << "Forked: " << farmPID_ << std::endl;
 	if (farmPID_ == 0) {
 		boost::filesystem::path execPath(Options::FARM_EXEC_PATH);
 
 		mycout << "Starting farm program " << execPath.string() << std::endl;
-		mycerr << (const char*) execPath.filename().string().data()
-				<< (const char*) param.data() << std::endl;
 
-		execl(execPath.string().data(), execPath.filename().string().data(),
-				param.data(), NULL);
+		char* argv[params.size() + 2];
+		argv[0] = (char*) execPath.filename().string().data();
+
+		for (unsigned int i = 0; i < params.size(); i++) {
+			argv[i + 1] = (char*) params[i].data();
+		}
+		argv[params.size() + 1] = NULL;
+
+		execv(execPath.string().data(), argv);
+//		execl(execPath.string().data(), execPath.filename().string().data(),
+//				param.data(), NULL);
 		mycerr << "Main farm program stopped!" << std::endl;
 		farmPID_ = -1;
 		exit(1);
