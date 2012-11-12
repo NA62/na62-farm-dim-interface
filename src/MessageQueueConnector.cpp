@@ -54,8 +54,6 @@ void MessageQueueConnector::run() {
 				if (stateQueue.timed_receive(&state, sizeof(int), recvd_size,
 						priority, t)) {
 					dimServer_->updateState(state);
-					mycout << "Received state" << state << " : " << priority
-							<< std::endl;
 
 					while (statisticsQueue.get_num_msg() > 0) {
 						statisticsMessage.resize(1024 * 64);
@@ -95,6 +93,7 @@ void MessageQueueConnector::run() {
 					}
 				} else {
 					mycerr << "Timeout" << std::endl;
+					dimServer_->updateState(OFF);
 				}
 			}
 
