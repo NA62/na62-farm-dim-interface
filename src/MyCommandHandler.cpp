@@ -5,6 +5,7 @@
  *      Author: kunzejo
  */
 
+#include "options/Options.h"
 #include "MyCommandHandler.h"
 
 namespace na62 {
@@ -16,7 +17,9 @@ void MyCommandHandler::commandHandler() {
 	std::string message;
 	message.resize(currCmnd->getSize());
 	message = std::string(currCmnd->getString());
-	mycout << "Received message: " << message << std::endl;
+	if (Options::VERBOSE) {
+		std::cout << "Received message: " << message << std::endl;
+	}
 
 	std::transform(message.begin(), message.end(), message.begin(), ::tolower);
 	if (message == "start") {
@@ -26,6 +29,7 @@ void MyCommandHandler::commandHandler() {
 	} else if (message == "stop") {
 		farmStarter_.killFarm();
 	} else {
+		std::cout << "Sending command:" << message << std::endl;
 		messageQueueConnector_->sendCommand(message);
 	}
 }

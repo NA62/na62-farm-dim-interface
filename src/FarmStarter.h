@@ -31,6 +31,7 @@ private:
 	DimInfo availableSourceIDs_;
 	DimInfo burstNumber_;
 	DimInfo runNumber_;
+	DimInfo SOB_TS_;
 	pid_t farmPID_;
 	MessageQueueConnector_ptr myConnector_;
 };

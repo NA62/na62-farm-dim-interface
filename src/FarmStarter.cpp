@@ -18,8 +18,8 @@ namespace dim {
 FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), burstNumber_(
 				"RunControl/BurstNumber", -1, this), runNumber_(
-				"RunControl/RunNumber", -1, this), farmPID_(-1), myConnector_(
-				myConnector) {
+				"RunControl/RunNumber", -1, this), SOB_TS_("NA62/Timing/SOB", 0,
+				this), farmPID_(-1), myConnector_(myConnector) {
 }
 
 FarmStarter::~FarmStarter() {
@@ -43,7 +43,6 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		argv.push_back(
 				"--currentRunNumber="
 						+ boost::lexical_cast<std::string>(runNumber));
-		return argv;
 		return argv;
 	} else {
 		/*
@@ -79,13 +78,18 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 
 void FarmStarter::infoHandler() {
 	DimInfo *curr = getInfo();
-	// get current DimInfo address
 	if (curr == &runNumber_) {
 		int runNumber = runNumber_.getInt();
-		mycout << "Updating RunNumber to " << runNumber << std::endl;
+		std::cout << "Updating RunNumber to " << runNumber << std::endl;
 		myConnector_->sendCommand(
 				"UpdateRunNumber:"
 						+ boost::lexical_cast<std::string>(runNumber));
+	} else if (curr == &SOB_TS_) {
+		uint32_t timestamp = SOB_TS_.getInt();
+		std::cout << "Updating SOB timestamp to " << timestamp << std::endl;
+		myConnector_->sendCommand(
+				"SOB_Timestamp:" + boost::lexical_cast<std::string>(timestamp));
+
 	}
 }
 
@@ -135,12 +139,12 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 }
 
 void FarmStarter::killFarm() {
+	boost::filesystem::path execPath(Options::FARM_EXEC_PATH);
+	std::cerr << "Killing " << execPath.filename() << std::endl;
+
 	if (farmPID_ > 0) {
 		kill(farmPID_, SIGKILL);
 	}
-	sleep(1);
-	boost::filesystem::path execPath(Options::FARM_EXEC_PATH);
-	std::cerr << "Killing " << execPath.filename() << std::endl;
 	system(std::string("killall -9 " + execPath.filename().string()).data());
 }
 } /* namespace dim */

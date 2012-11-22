@@ -23,22 +23,27 @@ public:
 	// The constructor creates the Commands
 	MyCommandHandler(std::string& hostname,
 			MessageQueueConnector_ptr messageQueueConnector,
-			FarmStarter& farmStarter) :
-			runNumber(
-					new DimCommand((hostname + std::string("/CMD")).data(),
-							(char*) "C", this)), messageQueueConnector_(
-					messageQueueConnector), farmStarter_(farmStarter) {
-	}
+			FarmStarter& farmStarter);
 
 	// Overloaded method commandHandler called whenever commands arrive,
 	void commandHandler();
 
 private:
-	DimCommand *runNumber;
+	DimCommand *command;
 	MessageQueueConnector_ptr messageQueueConnector_;
 	FarmStarter& farmStarter_;
 
 };
+
+inline MyCommandHandler::MyCommandHandler(std::string& hostname,
+		MessageQueueConnector_ptr messageQueueConnector,
+		FarmStarter& farmStarter) :
+		command(
+				new DimCommand((hostname + std::string("/CMD")).data(),
+						(char*) ("C"), this)), messageQueueConnector_(
+				messageQueueConnector), farmStarter_(farmStarter) {
+}
+
 } /* namespace dim */
 } /* namespace na62 */
 #endif /* MYCOMMANDHANDLER_H_ */

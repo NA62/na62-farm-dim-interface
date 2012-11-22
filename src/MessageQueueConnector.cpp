@@ -111,18 +111,19 @@ void MessageQueueConnector::run() {
 }
 
 void MessageQueueConnector::sendCommand(std::string command) {
-	if (!commandQueue_) {
-		try {
-			commandQueue_.reset(new message_queue(open_only // only create
-					, "command" // name
-					));
-		} catch (interprocess_exception &ex) {
-			commandQueue_.reset();
-			mycerr << "Unable to connect to command message queue: "
-					<< ex.what() << std::endl;
-			return;
-		}
+//	if (!commandQueue_) {
+	try {
+		commandQueue_.reset(new message_queue(open_only // only create
+				, "command" // name
+				));
+	} catch (interprocess_exception &ex) {
+		commandQueue_.reset();
+		mycerr << "Unable to connect to command message queue: " << ex.what()
+				<< std::endl;
+		return;
 	}
+//	}
+
 	try {
 		if (!commandQueue_->try_send(&(command[0]), command.size(), 0)) {
 			mycout << "Unable to send command to program via IPC! "
