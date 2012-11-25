@@ -7,6 +7,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
+#include <wait.h>
 
 #include "options/Options.h"
 
@@ -130,8 +131,8 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 //		execl(execPath.string().data(), execPath.filename().string().data(),
 //				param.data(), NULL);
 		mycerr << "Main farm program stopped!" << std::endl;
-		farmPID_ = -1;
-		exit(1);
+//		wait(pointer);
+		exit(0);
 	} else if (farmPID_ == -1) {
 		mycerr << "Forking failed! Unable to start the farm program!"
 				<< std::endl;
@@ -143,7 +144,8 @@ void FarmStarter::killFarm() {
 	std::cerr << "Killing " << execPath.filename() << std::endl;
 
 	if (farmPID_ > 0) {
-		kill(farmPID_, SIGKILL);
+		kill(farmPID_, SIGTERM);
+		waitpid(farmPID_, (int*) NULL, 0);
 	}
 	system(std::string("killall -9 " + execPath.filename().string()).data());
 }
