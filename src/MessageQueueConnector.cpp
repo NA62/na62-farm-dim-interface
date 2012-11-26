@@ -75,7 +75,10 @@ void MessageQueueConnector::run() {
 									statisticsMessage.find(':') + 1);
 
 							try {
-								if (statistics.find(";") != std::string::npos) {
+								if (statisticsName == "ErrorMessage") {
+									dimServer_->updateErrorMessage(statistics);
+								} else if (statistics.find(";")
+										!= std::string::npos) { // separated key/value pairs
 									dimServer_->updateStatistics(statisticsName,
 											statistics);
 								} else {

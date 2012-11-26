@@ -17,7 +17,9 @@ MonitorDimServer::MonitorDimServer(
 		FarmStarter& farmStarter) :
 		hostName_(hostName), cmdh(hostName, messageQueueConnector, farmStarter), initialState_(
 				OFF), stateService_(std::string(hostName + "/State").data(),
-				initialState_), messageQueueConnector_(messageQueueConnector) {
+				initialState_), errorMessageService_(
+				std::string(hostName + "/ErrorMessage").data(), ""), messageQueueConnector_(
+				messageQueueConnector) {
 
 	for (unsigned int i = 0; i < Options::MULTI_STAT_SERVICES.size(); i++) {
 		std::string serviceName = std::string(
@@ -69,6 +71,10 @@ void MonitorDimServer::updateStatistics(std::string serviceName,
 		return;
 	}
 	longlongStatisticServices_[serviceName]->updateService(value);
+}
+
+void MonitorDimServer::updateErrorMessage(std::string message) {
+	errorMessageService_.updateService((char*) message.data());
 }
 
 } /* namespace dim */

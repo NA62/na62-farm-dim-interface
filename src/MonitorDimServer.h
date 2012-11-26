@@ -29,6 +29,7 @@ private:
 
 	int initialState_;
 	DimService stateService_;
+	DimService errorMessageService_;
 	std::map<std::string, DimService_ptr> multiStatisticServices_;
 	std::map<std::string, DimService_ptr> longlongStatisticServices_;
 
@@ -42,6 +43,7 @@ public:
 	void updateState(STATE state);
 	void updateStatistics(std::string serviceName, std::string statistics);
 	void updateStatistics(std::string serviceName, longlong value);
+	void updateErrorMessage(std::string message);
 };
 
 typedef boost::shared_ptr<MonitorDimServer> MonitorDimServer_ptr;
