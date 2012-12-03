@@ -90,7 +90,12 @@ void FarmStarter::infoHandler() {
 		std::cout << "Updating SOB timestamp to " << timestamp << std::endl;
 		myConnector_->sendCommand(
 				"SOB_Timestamp:" + boost::lexical_cast<std::string>(timestamp));
+	} else if (curr == &burstNumber_) {
 
+		uint32_t burst = burstNumber_.getInt();
+		std::cout << "Updating burst ID to " << burst << std::endl;
+		myConnector_->sendCommand(
+				"UpdateBurstID:" + boost::lexical_cast<std::string>(burst));
 	}
 }
 
@@ -112,6 +117,16 @@ void FarmStarter::restartFarm() {
 }
 
 void FarmStarter::startFarm(std::vector<std::string> params) {
+	if (Options::IS_MERGER) {
+		sleep(1);
+	}
+
+	if (farmPID_ > 0) {
+		return;
+	}
+
+	killFarm();
+
 	farmPID_ = fork();
 	mycout << "Forked: " << farmPID_ << std::endl;
 	if (farmPID_ == 0) {
@@ -128,10 +143,9 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 		argv[params.size() + 1] = NULL;
 
 		execv(execPath.string().data(), argv);
-//		execl(execPath.string().data(), execPath.filename().string().data(),
-//				param.data(), NULL);
 		mycerr << "Main farm program stopped!" << std::endl;
-//		wait(pointer);
+		farmPID_ = -1;
+		wait((int*) NULL);
 		exit(0);
 	} else if (farmPID_ == -1) {
 		mycerr << "Forking failed! Unable to start the farm program!"
@@ -145,9 +159,9 @@ void FarmStarter::killFarm() {
 
 	if (farmPID_ > 0) {
 		kill(farmPID_, SIGTERM);
-		waitpid(farmPID_, (int*) NULL, 0);
 	}
 	system(std::string("killall -9 " + execPath.filename().string()).data());
+	farmPID_ = 0;
 }
 } /* namespace dim */
 } /* namespace na62 */
