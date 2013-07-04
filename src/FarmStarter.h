@@ -9,6 +9,7 @@
 #define FARMSTARTER_H_
 
 #include <dim/dic.hxx>
+#include <vector>
 
 #include "MessageQueueConnector.h"
 namespace na62 {

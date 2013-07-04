@@ -145,7 +145,7 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 		execv(execPath.string().data(), argv);
 		mycerr << "Main farm program stopped!" << std::endl;
 		farmPID_ = -1;
-		wait((int*) NULL);
+
 		exit(0);
 	} else if (farmPID_ == -1) {
 		mycerr << "Forking failed! Unable to start the farm program!"
@@ -159,6 +159,7 @@ void FarmStarter::killFarm() {
 
 	if (farmPID_ > 0) {
 		kill(farmPID_, SIGTERM);
+		wait((int*) NULL);
 	}
 	system(std::string("killall -9 " + execPath.filename().string()).data());
 	farmPID_ = 0;
