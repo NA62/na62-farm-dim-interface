@@ -9,8 +9,6 @@
 #include "../messages/MessageHandler.h"
 
 Utils::Utils() {
-	// TODO Auto-generated constructor stub
-
 }
 
 std::string Utils::FormatSize(long int size) {
