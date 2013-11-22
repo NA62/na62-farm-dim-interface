@@ -17,7 +17,7 @@ namespace na62 {
 namespace dim {
 
 FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
-		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), burstNumber_(
+		availableSourceIDs_("RunCOntrol/EnabledDetectors", -1, this), burstNumber_(
 				"RunControl/BurstNumber", -1, this), runNumber_(
 				"RunControl/RunNumber", -1, this), SOB_TS_("NA62/Timing/SOB", 0,
 				this), farmPID_(-1), myConnector_(myConnector) {
@@ -28,7 +28,7 @@ FarmStarter::~FarmStarter() {
 }
 
 std::vector<std::string> FarmStarter::generateStartParameters() {
-	std::vector<std::string> argv;
+	std::vector < std::string > argv;
 	if (Options::IS_MERGER) {
 		/*
 		 * Merger
@@ -63,7 +63,12 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 					"Unable to connect to EnabledDetectors  service. Unable to start!");
 		} else {
 			char* str = availableSourceIDs_.getString();
-			enabledDetectorIDs = std::string(str);
+			enabledDetectorIDs = std::string(str,
+					availableSourceIDs_.getSize());
+
+			std::cout << availableSourceIDs_.getSize() << std::endl;
+			std::cout << str<< std::endl;
+			std::cout << enabledDetectorIDs<< std::endl;
 			if (enabledDetectorIDs == "") {
 				throw NA62Error("No Detectors are enabled! Refusing to start.");
 			}

@@ -95,7 +95,6 @@ void MessageQueueConnector::run() {
 						}
 					}
 				} else {
-					mycerr << "Timeout" << std::endl;
 					dimServer_->updateState(OFF);
 				}
 			}
