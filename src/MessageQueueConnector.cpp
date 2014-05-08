@@ -2,7 +2,7 @@
  * MessageQueueConnector.cpp
  *
  *  Created on: Jul 11, 2012
- *      Author: root
+ \*      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>

@@ -2,7 +2,7 @@
  * MessageHandler.cpp
  *
  *  Created on: Oct 22, 2012
- *      Author: root
+ \*      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #include "MessageHandler.h"

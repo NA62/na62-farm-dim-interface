@@ -2,7 +2,7 @@
  * FarmStarter.cpp
  *
  *  Created on: Sep 12, 2012
- *      Author: root
+ \*      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #include <boost/filesystem.hpp>
