@@ -17,7 +17,7 @@ namespace na62 {
 namespace dim {
 
 FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
-		availableSourceIDs_("RunCOntrol/EnabledDetectors", -1, this), burstNumber_(
+		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), burstNumber_(
 				"RunControl/BurstNumber", -1, this), runNumber_(
 				"RunControl/RunNumber", -1, this), SOB_TS_("NA62/Timing/SOB", 0,
 				this), farmPID_(-1), myConnector_(myConnector) {
@@ -28,7 +28,7 @@ FarmStarter::~FarmStarter() {
 }
 
 std::vector<std::string> FarmStarter::generateStartParameters() {
-	std::vector < std::string > argv;
+	std::vector<std::string> argv;
 	if (Options::IS_MERGER) {
 		/*
 		 * Merger
@@ -51,33 +51,38 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		 */
 		int currentBurstNum = 0;
 		if (burstNumber_.getSize() <= 0) {
-			throw NA62Error(
-					"Unable to connect to RunNumber service! Refusing to start.");
+			std::cerr
+					<< "Unable to connect to RunNumber service! Refusing to start."
+					<< std::endl;
+			return argv;
 		} else {
 			currentBurstNum = burstNumber_.getInt(); // This should always be 0 unless the PC starts during a run!
 		}
 
+		argv.push_back(
+				"--firstBurstID="
+						+ boost::lexical_cast<std::string>(currentBurstNum));
+
 		std::string enabledDetectorIDs = "";
 		if (availableSourceIDs_.getSize() <= 0) {
-			throw NA62Error(
-					"Unable to connect to EnabledDetectors  service. Unable to start!");
+			std::cerr
+					<< "Unable to connect to EnabledDetectors service. Unable to start!"
+					<< std::endl;
 		} else {
-			char* str = availableSourceIDs_.getString();
-			enabledDetectorIDs = std::string(str,
-					availableSourceIDs_.getSize());
-
-			std::cout << availableSourceIDs_.getSize() << std::endl;
-			std::cout << str<< std::endl;
-			std::cout << enabledDetectorIDs<< std::endl;
-			if (enabledDetectorIDs == "") {
-				throw NA62Error("No Detectors are enabled! Refusing to start.");
+			if (availableSourceIDs_.getString()[0] == (char) 0xFFFFFFFF
+					&& availableSourceIDs_.getSize() == 4) {
+				std::cerr
+						<< "EnabledDetectors is empty. Starting the pc-farm will fail!"
+						<< std::endl;
+			} else {
+				char* str = availableSourceIDs_.getString();
+				enabledDetectorIDs = std::string(str,
+						availableSourceIDs_.getSize());
 			}
 		}
 
 		argv.push_back("--L0DataSourceIDs=" + enabledDetectorIDs);
-		argv.push_back(
-				"--firstBurstID="
-						+ boost::lexical_cast<std::string>(currentBurstNum));
+
 		return argv;
 	}
 }
@@ -122,6 +127,12 @@ void FarmStarter::restartFarm() {
 }
 
 void FarmStarter::startFarm(std::vector<std::string> params) {
+	std::cout << "Starting farm with following parameters: ";
+	for (std::string param : params) {
+		std::cout << param << " ";
+	}
+	std::cout << std::endl;
+
 	if (Options::IS_MERGER) {
 		sleep(1);
 	}
