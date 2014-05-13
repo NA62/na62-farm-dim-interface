@@ -15,7 +15,6 @@
 #include <unistd.h>
 
 #include "options/Options.h"
-#include "messages/MessageHandler.h"
 #include "MonitorDimServer.h"
 #include "MessageQueueConnector.h"
 #include "FarmStarter.h"
@@ -26,7 +25,7 @@ int main(int argc, char* argv[]) {
 	/*
 	 * Read program parameters
 	 */
-	mycout << "Initializing Options" << std::endl;
+	std::cout << "Initializing Options" << std::endl;
 	Options::Initialize(argc, argv);
 
 	char hostName[1024];

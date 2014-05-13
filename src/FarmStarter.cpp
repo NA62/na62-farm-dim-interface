@@ -5,13 +5,19 @@
  \*      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
-#include <boost/filesystem.hpp>
-#include <boost/thread.hpp>
-#include <wait.h>
-
-#include "options/Options.h"
-
 #include "FarmStarter.h"
+
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <csignal>
+#include <cstdlib>
+#include <iostream>
+#include <string>
+
+#include "exceptions/NA62Error.h"
+#include "options/Options.h"
 
 namespace na62 {
 namespace dim {
@@ -113,7 +119,7 @@ void FarmStarter::startFarm() {
 	try {
 		startFarm(generateStartParameters());
 	} catch (NA62Error const& e) {
-		mycerr << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 	}
 }
 
@@ -122,7 +128,7 @@ void FarmStarter::restartFarm() {
 	try {
 		startFarm(generateStartParameters());
 	} catch (NA62Error const& e) {
-		mycerr << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 	}
 }
 
@@ -144,11 +150,11 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 	killFarm();
 
 	farmPID_ = fork();
-	mycout << "Forked: " << farmPID_ << std::endl;
+	std::cout << "Forked: " << farmPID_ << std::endl;
 	if (farmPID_ == 0) {
 		boost::filesystem::path execPath(Options::FARM_EXEC_PATH);
 
-		mycout << "Starting farm program " << execPath.string() << std::endl;
+		std::cout << "Starting farm program " << execPath.string() << std::endl;
 
 		char* argv[params.size() + 2];
 		argv[0] = (char*) execPath.filename().string().data();
@@ -159,12 +165,12 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 		argv[params.size() + 1] = NULL;
 
 		execv(execPath.string().data(), argv);
-		mycerr << "Main farm program stopped!" << std::endl;
+		std::cerr << "Main farm program stopped!" << std::endl;
 		farmPID_ = -1;
 
 		exit(0);
 	} else if (farmPID_ == -1) {
-		mycerr << "Forking failed! Unable to start the farm program!"
+		std::cerr << "Forking failed! Unable to start the farm program!"
 				<< std::endl;
 	}
 }

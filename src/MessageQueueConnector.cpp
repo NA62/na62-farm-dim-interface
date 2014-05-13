@@ -101,11 +101,11 @@ void MessageQueueConnector::run() {
 
 			dimServer_->updateState(OFF);
 			message_queue::remove("state");
-			mycout << "done" << std::endl;
+			std::cout << "done" << std::endl;
 
 		} catch (interprocess_exception &ex) {
 			message_queue::remove("state");
-			mycerr << "Unable to connect to message queue: " << ex.what()
+			std::cerr << "Unable to connect to message queue: " << ex.what()
 					<< std::endl;
 			boost::system::error_code noError;
 		}
@@ -120,7 +120,7 @@ void MessageQueueConnector::sendCommand(std::string command) {
 				));
 	} catch (interprocess_exception &ex) {
 		commandQueue_.reset();
-		mycerr << "Unable to connect to command message queue: " << ex.what()
+		std::cerr << "Unable to connect to command message queue: " << ex.what()
 				<< std::endl;
 		return;
 	}
@@ -128,12 +128,12 @@ void MessageQueueConnector::sendCommand(std::string command) {
 
 	try {
 		if (!commandQueue_->try_send(&(command[0]), command.size(), 0)) {
-			mycout << "Unable to send command to program via IPC! "
+			std::cout << "Unable to send command to program via IPC! "
 					<< std::endl;
 			commandQueue_.reset();
 		}
 	} catch (interprocess_exception &ex) {
-		mycout << "Unable to send command to program via IPC! " << std::endl;
+		std::cout << "Unable to send command to program via IPC! " << std::endl;
 		commandQueue_.reset();
 	}
 }

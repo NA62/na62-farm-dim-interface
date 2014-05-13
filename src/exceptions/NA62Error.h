@@ -9,7 +9,6 @@
 #define NA62ERROR_H_
 
 #include <stdexcept>
-#include "../messages/MessageHandler.h"
 
 namespace na62 {
 namespace dim {

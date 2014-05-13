@@ -7,11 +7,10 @@
 
 #ifndef MYCOMMANDHANDLER_H_
 #define MYCOMMANDHANDLER_H_
-#include <algorithm>
-#include <dim/dis.hxx>
-#include <iostream>
 
-#include "messages/MessageHandler.h"
+#include <dim/dis.hxx>
+#include <string>
+
 #include "FarmStarter.h"
 #include "MessageQueueConnector.h"
 

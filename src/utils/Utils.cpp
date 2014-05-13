@@ -6,7 +6,6 @@
  */
 
 #include "Utils.h"
-#include "../messages/MessageHandler.h"
 
 Utils::Utils() {
 }
@@ -58,12 +57,12 @@ void Utils::PrintHex(const u_char* data, const size_t dataLength) {
 	for (uint32_t i = 0; i < dataLength; i++) {
 		uint8_t byte;
 		memcpy(&byte, &data[i], 1);
-		na62::dim::mycout << std::hex << std::setw(2) << std::setfill('0') << (int) byte << " ";
+		std::cout << std::hex << std::setw(2) << std::setfill('0') << (int) byte << " ";
 		if ((i + 1) % 4 == 0) {
-			na62::dim::mycout << std::endl;
+			std::cout << std::endl;
 		}
 	}
-	na62::dim::mycout << std::dec << std::endl;
+	std::cout << std::dec << std::endl;
 }
 
 uint Utils::ToUInt(std::string str) throw (boost::bad_lexical_cast ){

@@ -27,18 +27,18 @@ bool Options::IS_MERGER;
 void Options::PrintVM(po::variables_map vm) {
 	using namespace po;
 	for (variables_map::iterator it = vm.begin(); it != vm.end(); ++it) {
-		mycout << it->first << "=";
+		std::cout << it->first << "=";
 
 		const variable_value& v = it->second;
 		if (!v.empty()) {
 			const std::type_info& type = v.value().type();
 			if (type == typeid(::std::string)) {
-				mycout << v.as<std::string>();
+				std::cout << v.as<std::string>();
 			} else if (type == typeid(int)) {
-				mycout << v.as<int>();
+				std::cout << v.as<int>();
 			}
 		}
-		mycout << std::endl;
+		std::cout << std::endl;
 	}
 }
 /**
