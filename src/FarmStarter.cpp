@@ -17,7 +17,7 @@
 #include <string>
 
 #include "exceptions/NA62Error.h"
-#include "options/Options.h"
+#include "options/MyOptions.h"
 
 namespace na62 {
 namespace dim {
@@ -35,7 +35,7 @@ FarmStarter::~FarmStarter() {
 
 std::vector<std::string> FarmStarter::generateStartParameters() {
 	std::vector<std::string> argv;
-	if (Options::IS_MERGER) {
+	if (Options::GetBool(OPTION_IS_MERGER)) {
 		/*
 		 * Merger
 		 */
@@ -139,7 +139,7 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 	}
 	std::cout << std::endl;
 
-	if (Options::IS_MERGER) {
+	if (Options::GetBool(OPTION_IS_MERGER)) {
 		sleep(1);
 	}
 
@@ -152,7 +152,7 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 	farmPID_ = fork();
 	std::cout << "Forked: " << farmPID_ << std::endl;
 	if (farmPID_ == 0) {
-		boost::filesystem::path execPath(Options::FARM_EXEC_PATH);
+		boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
 
 		std::cout << "Starting farm program " << execPath.string() << std::endl;
 
@@ -176,7 +176,7 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 }
 
 void FarmStarter::killFarm() {
-	boost::filesystem::path execPath(Options::FARM_EXEC_PATH);
+	boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
 	std::cerr << "Killing " << execPath.filename() << std::endl;
 
 	if (farmPID_ > 0) {

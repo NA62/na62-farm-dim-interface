@@ -8,7 +8,7 @@
 #include <boost/lexical_cast.hpp>
 #include "MonitorDimServer.h"
 #include "States.h"
-#include "options/Options.h"
+#include "options/MyOptions.h"
 
 #include "MessageQueueConnector.h"
 
@@ -46,10 +46,12 @@ void MessageQueueConnector::run() {
 			STATE state = OFF;
 
 			std::string statisticsMessage;
+
+			boost::posix_time::milliseconds timeout(
+					Options::GetInt(OPTION_HEARTBEAT_TIMEOUT_MILLIS));
 			while (true) {
 				boost::posix_time::ptime t = microsec_clock::universal_time()
-						+ boost::posix_time::milliseconds(
-								Options::HEARTBEAT_TIMEOUT_MILLIS);
+						+ timeout;
 
 				if (stateQueue.timed_receive(&state, sizeof(int), recvd_size,
 						priority, t)) {
@@ -58,7 +60,7 @@ void MessageQueueConnector::run() {
 					while (statisticsQueue.get_num_msg() > 0) {
 						statisticsMessage.resize(1024 * 64);
 
-						if (Options::VERBOSE) {
+						if (Options::GetInt(OPTION_VERBOSITY) != 0) {
 							std::cout << "Received: " << statisticsMessage
 									<< std::endl;
 						}
