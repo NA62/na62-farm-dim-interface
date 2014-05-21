@@ -2,7 +2,7 @@
  * FarmStarter.cpp
  *
  *  Created on: Sep 12, 2012
- \*      Author: Jonas Kunze (kunze.jonas@gmail.com)
+ *      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #include "FarmStarter.h"

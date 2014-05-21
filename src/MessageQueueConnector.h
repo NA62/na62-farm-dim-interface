@@ -2,7 +2,7 @@
  * MessageQueueConnector.h
  *
  *  Created on: Jul 11, 2012
- \*      Author: Jonas Kunze (kunze.jonas@gmail.com)
+ *      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #ifndef MESSAGEQUEUECONNECTOR_H_
