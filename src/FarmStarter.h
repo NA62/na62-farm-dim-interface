@@ -30,6 +30,7 @@ private:
 	void infoHandler();
 
 	DimInfo availableSourceIDs_;
+	DimInfo activeCREAMS_;
 	DimInfo burstNumber_;
 	DimInfo runNumber_;
 	DimInfo SOB_TS_;
