@@ -27,6 +27,7 @@ MessageQueueConnector::~MessageQueueConnector() {
 }
 
 void MessageQueueConnector::run() {
+	STATE lastSentState = OFF;
 	while (true) {
 		try {
 			message_queue::remove("state");
@@ -55,7 +56,12 @@ void MessageQueueConnector::run() {
 
 				if (stateQueue.timed_receive(&state, sizeof(int), recvd_size,
 						priority, t)) {
-					dimServer_->updateState(state);
+					std::cerr << "Received heart beat: setting state to "
+							<< state << std::endl;
+					if (lastSentState != state) {
+						sendState(state);
+						lastSentState = state;
+					}
 
 					while (statisticsQueue.get_num_msg() > 0) {
 						statisticsMessage.resize(1024 * 64);
@@ -97,11 +103,16 @@ void MessageQueueConnector::run() {
 						}
 					}
 				} else {
-					dimServer_->updateState(OFF);
+					std::cerr << "Heart beat timeout: setting state to OFF"
+							<< std::endl;
+					if (lastSentState != OFF) {
+						sendState(OFF);
+						lastSentState = OFF;
+					}
 				}
 			}
 
-			dimServer_->updateState(OFF);
+			sendState(OFF);
 			message_queue::remove("state");
 			std::cout << "done" << std::endl;
 
@@ -112,6 +123,10 @@ void MessageQueueConnector::run() {
 			boost::system::error_code noError;
 		}
 	}
+}
+
+void MessageQueueConnector::sendState(STATE state) {
+	dimServer_->updateState(state);
 }
 
 void MessageQueueConnector::sendCommand(std::string command) {

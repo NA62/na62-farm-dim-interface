@@ -23,10 +23,13 @@ void MyCommandHandler::commandHandler() {
 
 	std::transform(message.begin(), message.end(), message.begin(), ::tolower);
 	if (message == "start") {
+		std::cout << "Start received" << std::endl;
 		farmStarter_.startFarm();
 	} else if (message == "restart") {
+		std::cout << "Restart received" << std::endl;
 		farmStarter_.restartFarm();
 	} else if (message == "stop") {
+		std::cout << "Stop received" << std::endl;
 		farmStarter_.killFarm();
 	} else {
 		std::cout << "Sending command:" << message << std::endl;

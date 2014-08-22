@@ -18,6 +18,7 @@
 
 #include "exceptions/NA62Error.h"
 #include "options/MyOptions.h"
+#include "States.h"
 
 namespace na62 {
 namespace dim {
@@ -104,7 +105,7 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		}
 
 		argv.push_back("--L0DataSourceIDs=" + enabledDetectorIDs);
-		argv.push_back("--CREAMCrates="+creamCrates);
+		argv.push_back("--CREAMCrates=" + creamCrates);
 
 		return argv;
 	}
@@ -135,6 +136,7 @@ void FarmStarter::infoHandler() {
 void FarmStarter::startFarm() {
 	try {
 		startFarm(generateStartParameters());
+		myConnector_->sendState(OFF);
 	} catch (NA62Error const& e) {
 		std::cerr << e.what() << std::endl;
 	}
@@ -161,6 +163,7 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 	}
 
 	if (farmPID_ > 0) {
+		myConnector_->sendState(OFF);
 		return;
 	}
 
@@ -190,6 +193,7 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 		std::cerr << "Forking failed! Unable to start the farm program!"
 				<< std::endl;
 	}
+	myConnector_->sendState(OFF);
 }
 
 void FarmStarter::killFarm() {
