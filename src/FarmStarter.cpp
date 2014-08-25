@@ -25,7 +25,7 @@ namespace dim {
 
 FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), activeCREAMS_(
-				" RunControl/CREAMCrates", -1, this), burstNumber_(
+				"RunControl/CREAMCrates", -1, this), burstNumber_(
 				"RunControl/BurstNumber", -1, this), runNumber_(
 				"RunControl/RunNumber", -1, this), SOB_TS_("NA62/Timing/SOB", 0,
 				this), farmPID_(-1), myConnector_(myConnector) {
