@@ -54,7 +54,7 @@ public:
 		( OPTION_LONGLONG_SERVICES, po::value<std::string>()->required(),
 				"Comma separated list (S1,S2,S3...) of services with single long values.")
 
-		( OPTION_IS_MERGER, po::value<int>()->required(),
+		( OPTION_IS_MERGER, po::value<bool>()->required(),
 				"Set 1 if this is the dim connector for a merger and 0 if it is running on a farm PC.")
 
 				;
