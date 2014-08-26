@@ -10,6 +10,7 @@
 
 #include <dim/dic.hxx>
 #include <vector>
+#include <string>
 
 #include "MessageQueueConnector.h"
 namespace na62 {

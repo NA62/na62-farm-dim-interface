@@ -9,11 +9,15 @@
 #define MONITORDIMSERVER_H_
 
 #include <dim/dis.hxx>
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#include <map>
+#include <string>
+#include <monitoring/IPCHandler.h>
 
-#include "States.h"
+#include "FarmStarter.h"
+#include "MessageQueueConnector.h"
 #include "MyCommandHandler.h"
 
 namespace na62 {
@@ -22,7 +26,9 @@ class MessageQueueConnector;
 typedef boost::shared_ptr<MessageQueueConnector> MessageQueueConnector_ptr;
 typedef boost::shared_ptr<DimService> DimService_ptr;
 
-class MonitorDimServer: public boost::enable_shared_from_this<MonitorDimServer>, DimServer, private boost::noncopyable {
+class MonitorDimServer: public boost::enable_shared_from_this<MonitorDimServer>,
+		DimServer,
+		private boost::noncopyable {
 private:
 	const std::string hostName_;
 	MyCommandHandler cmdh;
@@ -30,13 +36,15 @@ private:
 	int initialState_;
 	DimService stateService_;
 	DimService errorMessageService_;
+	DimService inIpAddressService_;
 	std::map<std::string, DimService_ptr> multiStatisticServices_;
 	std::map<std::string, DimService_ptr> longlongStatisticServices_;
 
 	MessageQueueConnector_ptr messageQueueConnector_;
 
 public:
-	MonitorDimServer(MessageQueueConnector_ptr messageQueueConnector_, std::string hostName, FarmStarter& farmStarter);
+	MonitorDimServer(MessageQueueConnector_ptr messageQueueConnector_,
+			std::string hostName, FarmStarter& farmStarter, std::string inIpAddress);
 
 	virtual ~MonitorDimServer();
 
