@@ -2,7 +2,7 @@
  * FarmStarter.h
  *
  *  Created on: Sep 12, 2012
- \*      Author: Jonas Kunze (kunze.jonas@gmail.com)
+ *      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #ifndef FARMSTARTER_H_
@@ -30,6 +30,7 @@ private:
 	void infoHandler();
 
 	DimInfo availableSourceIDs_;
+	DimInfo activeCREAMS_;
 	DimInfo burstNumber_;
 	DimInfo runNumber_;
 	DimInfo SOB_TS_;

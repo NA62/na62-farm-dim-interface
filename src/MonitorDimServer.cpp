@@ -5,7 +5,7 @@
  *      Author: kunzejo
  */
 
-#include "options/Options.h"
+#include "options/MyOptions.h"
 #include "MessageQueueConnector.h"
 #include "MonitorDimServer.h"
 
@@ -21,23 +21,25 @@ MonitorDimServer::MonitorDimServer(
 				std::string(hostName + "/ErrorMessage").data(), (char*) ""), messageQueueConnector_(
 				messageQueueConnector) {
 
-	for (unsigned int i = 0; i < Options::MULTI_STAT_SERVICES.size(); i++) {
+	auto MULTI_STAT_SERVICES = Options::GetStringList(OPTION_MULTI_STAT_SERVICES);
+	for (unsigned int i = 0; i < MULTI_STAT_SERVICES.size(); i++) {
 		std::string serviceName = std::string(
-				hostName + "/" + Options::MULTI_STAT_SERVICES[i]);
+				hostName + "/" + MULTI_STAT_SERVICES[i]);
 		std::cout << "Starting service " << serviceName << std::endl;
 
 		DimService_ptr ptr(new DimService(serviceName.data(), (char*) ""));
-		multiStatisticServices_[Options::MULTI_STAT_SERVICES[i]] = ptr;
+		multiStatisticServices_[MULTI_STAT_SERVICES[i]] = ptr;
 	}
 
+	auto LONGLONG_SERVICES = Options::GetStringList(OPTION_LONGLONG_SERVICES);
 	longlong initialVal = 0;
-	for (unsigned int i = 0; i < Options::LONGLONG_SERVICES.size(); i++) {
+	for (unsigned int i = 0; i < LONGLONG_SERVICES.size(); i++) {
 		std::string serviceName = std::string(
-				hostName + "/" + Options::LONGLONG_SERVICES[i]);
+				hostName + "/" + LONGLONG_SERVICES[i]);
 		std::cout << "Starting service " << serviceName << std::endl;
 
 		DimService_ptr ptr(new DimService(serviceName.data(), initialVal));
-		longlongStatisticServices_[Options::LONGLONG_SERVICES[i]] = ptr;
+		longlongStatisticServices_[LONGLONG_SERVICES[i]] = ptr;
 	}
 
 	start(hostName.data());

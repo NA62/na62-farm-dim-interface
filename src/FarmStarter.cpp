@@ -2,7 +2,7 @@
  * FarmStarter.cpp
  *
  *  Created on: Sep 12, 2012
- \*      Author: Jonas Kunze (kunze.jonas@gmail.com)
+ *      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #include "FarmStarter.h"
@@ -17,13 +17,15 @@
 #include <string>
 
 #include "exceptions/NA62Error.h"
-#include "options/Options.h"
+#include "options/MyOptions.h"
+#include "States.h"
 
 namespace na62 {
 namespace dim {
 
 FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
-		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), burstNumber_(
+		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), activeCREAMS_(
+				"RunControl/CREAMCrates", -1, this), burstNumber_(
 				"RunControl/BurstNumber", -1, this), runNumber_(
 				"RunControl/RunNumber", -1, this), SOB_TS_("NA62/Timing/SOB", 0,
 				this), farmPID_(-1), myConnector_(myConnector) {
@@ -35,7 +37,7 @@ FarmStarter::~FarmStarter() {
 
 std::vector<std::string> FarmStarter::generateStartParameters() {
 	std::vector<std::string> argv;
-	if (Options::IS_MERGER) {
+	if (Options::GetBool(OPTION_IS_MERGER)) {
 		/*
 		 * Merger
 		 */
@@ -87,7 +89,23 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 			}
 		}
 
+		std::string creamCrates = "";
+		if (activeCREAMS_.getSize() <= 0) {
+			std::cerr
+					<< "Unable to connect to EnabledDetectors service. Unable to start!"
+					<< std::endl;
+		} else {
+			if (activeCREAMS_.getString()[0] == (char) 0xFFFFFFFF
+					&& activeCREAMS_.getSize() == 4) {
+				creamCrates = "0:0";
+			} else {
+				char* str = activeCREAMS_.getString();
+				creamCrates = std::string(str, activeCREAMS_.getSize());
+			}
+		}
+
 		argv.push_back("--L0DataSourceIDs=" + enabledDetectorIDs);
+		argv.push_back("--CREAMCrates=" + creamCrates);
 
 		return argv;
 	}
@@ -118,6 +136,7 @@ void FarmStarter::infoHandler() {
 void FarmStarter::startFarm() {
 	try {
 		startFarm(generateStartParameters());
+		myConnector_->sendState(OFF);
 	} catch (NA62Error const& e) {
 		std::cerr << e.what() << std::endl;
 	}
@@ -127,6 +146,7 @@ void FarmStarter::restartFarm() {
 	killFarm();
 	try {
 		startFarm(generateStartParameters());
+		myConnector_->sendState(OFF);
 	} catch (NA62Error const& e) {
 		std::cerr << e.what() << std::endl;
 	}
@@ -139,20 +159,24 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 	}
 	std::cout << std::endl;
 
-	if (Options::IS_MERGER) {
+	if (Options::GetBool(OPTION_IS_MERGER)) {
 		sleep(1);
 	}
 
+//	if (farmPID_ > 0) {
+//		myConnector_->sendState(OFF);
+//		return;
+//	}
+
 	if (farmPID_ > 0) {
-		return;
+		killFarm();
+		sleep(3);
 	}
 
-	killFarm();
-
 	farmPID_ = fork();
-	std::cout << "Forked: " << farmPID_ << std::endl;
 	if (farmPID_ == 0) {
-		boost::filesystem::path execPath(Options::FARM_EXEC_PATH);
+		boost::filesystem::path execPath(
+				Options::GetString(OPTION_FARM_EXEC_PATH));
 
 		std::cout << "Starting farm program " << execPath.string() << std::endl;
 
@@ -173,15 +197,18 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 		std::cerr << "Forking failed! Unable to start the farm program!"
 				<< std::endl;
 	}
+	myConnector_->sendState(OFF);
 }
 
 void FarmStarter::killFarm() {
-	boost::filesystem::path execPath(Options::FARM_EXEC_PATH);
+	boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
 	std::cerr << "Killing " << execPath.filename() << std::endl;
 
+	signal(SIGCHLD, SIG_IGN);
 	if (farmPID_ > 0) {
 		kill(farmPID_, SIGTERM);
-		wait((int*) NULL);
+//		wait((int*) NULL);
+//		waitpid(farmPID_, 0,WNOHANG);
 	}
 	system(std::string("killall -9 " + execPath.filename().string()).data());
 	farmPID_ = 0;

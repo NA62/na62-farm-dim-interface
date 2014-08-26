@@ -2,13 +2,13 @@
  * MessageQueueConnector.cpp
  *
  *  Created on: Jul 11, 2012
- \*      Author: Jonas Kunze (kunze.jonas@gmail.com)
+ *      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
 #include "MonitorDimServer.h"
 #include "States.h"
-#include "options/Options.h"
+#include "options/MyOptions.h"
 
 #include "MessageQueueConnector.h"
 
@@ -27,6 +27,7 @@ MessageQueueConnector::~MessageQueueConnector() {
 }
 
 void MessageQueueConnector::run() {
+	STATE lastSentState = OFF;
 	while (true) {
 		try {
 			message_queue::remove("state");
@@ -46,19 +47,26 @@ void MessageQueueConnector::run() {
 			STATE state = OFF;
 
 			std::string statisticsMessage;
+
+			boost::posix_time::milliseconds timeout(
+					Options::GetInt(OPTION_HEARTBEAT_TIMEOUT_MILLIS));
 			while (true) {
 				boost::posix_time::ptime t = microsec_clock::universal_time()
-						+ boost::posix_time::milliseconds(
-								Options::HEARTBEAT_TIMEOUT_MILLIS);
+						+ timeout;
 
 				if (stateQueue.timed_receive(&state, sizeof(int), recvd_size,
 						priority, t)) {
-					dimServer_->updateState(state);
+					std::cerr << "Received heart beat: setting state to "
+							<< state << std::endl;
+					if (lastSentState != state) {
+						sendState(state);
+						lastSentState = state;
+					}
 
 					while (statisticsQueue.get_num_msg() > 0) {
 						statisticsMessage.resize(1024 * 64);
 
-						if (Options::VERBOSE) {
+						if (Options::GetInt(OPTION_VERBOSITY) != 0) {
 							std::cout << "Received: " << statisticsMessage
 									<< std::endl;
 						}
@@ -95,11 +103,16 @@ void MessageQueueConnector::run() {
 						}
 					}
 				} else {
-					dimServer_->updateState(OFF);
+					std::cerr << "Heart beat timeout: setting state to OFF"
+							<< std::endl;
+					if (lastSentState != OFF) {
+						sendState(OFF);
+						lastSentState = OFF;
+					}
 				}
 			}
 
-			dimServer_->updateState(OFF);
+			sendState(OFF);
 			message_queue::remove("state");
 			std::cout << "done" << std::endl;
 
@@ -110,6 +123,10 @@ void MessageQueueConnector::run() {
 			boost::system::error_code noError;
 		}
 	}
+}
+
+void MessageQueueConnector::sendState(STATE state) {
+	dimServer_->updateState(state);
 }
 
 void MessageQueueConnector::sendCommand(std::string command) {

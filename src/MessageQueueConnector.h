@@ -2,7 +2,7 @@
  * MessageQueueConnector.h
  *
  *  Created on: Jul 11, 2012
- \*      Author: Jonas Kunze (kunze.jonas@gmail.com)
+ *      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
 
 #ifndef MESSAGEQUEUECONNECTOR_H_
@@ -10,6 +10,7 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/interprocess/ipc/message_queue.hpp>
+#include "States.h"
 
 namespace na62 {
 namespace dim {
@@ -28,6 +29,8 @@ public:
 	void setDimServer(const na62::dim::MonitorDimServer_ptr dimServer) {
 		dimServer_ = dimServer;
 	}
+
+	void sendState(STATE state);
 
 private:
 	MonitorDimServer_ptr dimServer_;
