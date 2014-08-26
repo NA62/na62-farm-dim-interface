@@ -146,6 +146,7 @@ void FarmStarter::restartFarm() {
 	killFarm();
 	try {
 		startFarm(generateStartParameters());
+		myConnector_->sendState(OFF);
 	} catch (NA62Error const& e) {
 		std::cerr << e.what() << std::endl;
 	}
@@ -162,12 +163,15 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 		sleep(1);
 	}
 
-	if (farmPID_ > 0) {
-		myConnector_->sendState(OFF);
-		return;
-	}
+//	if (farmPID_ > 0) {
+//		myConnector_->sendState(OFF);
+//		return;
+//	}
 
-	killFarm();
+	if (farmPID_ > 0) {
+		killFarm();
+		sleep(3);
+	}
 
 	farmPID_ = fork();
 	if (farmPID_ == 0) {
@@ -200,9 +204,11 @@ void FarmStarter::killFarm() {
 	boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
 	std::cerr << "Killing " << execPath.filename() << std::endl;
 
+	signal(SIGCHLD, SIG_IGN);
 	if (farmPID_ > 0) {
 		kill(farmPID_, SIGTERM);
-		wait((int*) NULL);
+//		wait((int*) NULL);
+//		waitpid(farmPID_, 0,WNOHANG);
 	}
 	system(std::string("killall -9 " + execPath.filename().string()).data());
 	farmPID_ = 0;
