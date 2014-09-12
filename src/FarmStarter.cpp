@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string>
 #include <monitoring/IPCHandler.h>
+#include <functional>
 
 #include "exceptions/NA62Error.h"
 #include "options/MyOptions.h"
@@ -26,10 +27,27 @@ namespace dim {
 
 FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), activeCREAMS_(
-				"RunControl/CREAMCrates", -1, this), burstNumber_(
-				"RunControl/BurstNumber", -1, this), runNumber_(
-				"RunControl/RunNumber", -1, this), SOB_TS_("NA62/Timing/SOB", 0,
-				this), farmPID_(-1), myConnector_(myConnector) {
+				"RunControl/CREAMCrates", -1, this), farmPID_(-1), myConnector_(
+				myConnector) {
+
+	dimListener.registerRunNumberListener(
+			[this](uint runNumber) {myConnector_->sendCommand(
+						"UpdateRunNumber:"
+						+ boost::lexical_cast<std::string>(runNumber));});
+
+	dimListener.registerBurstNumberListener(
+			[this](uint burstID) {myConnector_->sendCommand(
+						"UpdateBurstID:"
+						+ boost::lexical_cast<std::string>(burstID));});
+
+	dimListener.registerSobListener([this](uint sob) {myConnector_->sendCommand(
+				"SOB_Timestamp:"
+				+ boost::lexical_cast<std::string>(sob));});
+
+	dimListener.registerEobListener([this](uint eob) {
+		myConnector_->sendCommand(
+				"EOB_Timestamp:"
+				+ boost::lexical_cast<std::string>(eob));});
 }
 
 FarmStarter::~FarmStarter() {
@@ -42,13 +60,7 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		/*
 		 * Merger
 		 */
-		int runNumber = 0;
-		if (runNumber_.getSize() <= 0) {
-			throw NA62Error(
-					"Unable to connect to RunNumber service! Refusing to start.");
-		} else {
-			runNumber = runNumber_.getInt(); // This should always be 0 unless the PC starts during a run!
-		}
+		int runNumber = dimListener.getRunNumber(); // This should always be 0 unless the PC starts during a run!
 
 		argv.push_back(
 				"--currentRunNumber="
@@ -58,15 +70,7 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		/*
 		 * PC Farm
 		 */
-		int currentBurstNum = 0;
-		if (burstNumber_.getSize() <= 0) {
-			std::cerr
-					<< "Unable to connect to RunNumber service! Refusing to start."
-					<< std::endl;
-			return argv;
-		} else {
-			currentBurstNum = burstNumber_.getInt(); // This should always be 0 unless the PC starts during a run!
-		}
+		int currentBurstNum = dimListener.getBurstNumber(); // This should always be 0 unless the PC starts during a run!
 
 		argv.push_back(
 				"--firstBurstID="
@@ -113,25 +117,6 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 }
 
 void FarmStarter::infoHandler() {
-	DimInfo *curr = getInfo();
-	if (curr == &runNumber_) {
-		int runNumber = runNumber_.getInt();
-		std::cout << "Updating RunNumber to " << runNumber << std::endl;
-		myConnector_->sendCommand(
-				"UpdateRunNumber:"
-						+ boost::lexical_cast<std::string>(runNumber));
-	} else if (curr == &SOB_TS_) {
-		uint32_t timestamp = SOB_TS_.getInt();
-		std::cout << "Updating SOB timestamp to " << timestamp << std::endl;
-		myConnector_->sendCommand(
-				"SOB_Timestamp:" + boost::lexical_cast<std::string>(timestamp));
-	} else if (curr == &burstNumber_) {
-
-		uint32_t burst = burstNumber_.getInt();
-		std::cout << "Updating burst ID to " << burst << std::endl;
-		myConnector_->sendCommand(
-				"UpdateBurstID:" + boost::lexical_cast<std::string>(burst));
-	}
 }
 
 void FarmStarter::startFarm() {

@@ -9,10 +9,14 @@
 #define FARMSTARTER_H_
 
 #include <dim/dic.hxx>
+#include <sys/types.h>
+#include <string>
 #include <vector>
 #include <string>
+#include <dim/DimListener.h>
 
 #include "MessageQueueConnector.h"
+
 namespace na62 {
 namespace dim {
 
@@ -32,11 +36,11 @@ private:
 
 	DimInfo availableSourceIDs_;
 	DimInfo activeCREAMS_;
-	DimInfo burstNumber_;
-	DimInfo runNumber_;
-	DimInfo SOB_TS_;
+
 	pid_t farmPID_;
 	MessageQueueConnector_ptr myConnector_;
+
+	DimListener dimListener;
 };
 } /* namespace dim */
 } /* namespace na62 */
