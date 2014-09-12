@@ -8,9 +8,10 @@
 #ifndef MESSAGEQUEUECONNECTOR_H_
 #define MESSAGEQUEUECONNECTOR_H_
 
+#include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/interprocess/ipc/message_queue.hpp>
-#include "States.h"
+#include <monitoring/IPCHandler.h>
+#include <string>
 
 namespace na62 {
 namespace dim {
@@ -34,9 +35,6 @@ public:
 
 private:
 	MonitorDimServer_ptr dimServer_;
-
-	typedef boost::shared_ptr<boost::interprocess::message_queue> message_queue_ptr;
-	message_queue_ptr commandQueue_;
 };
 
 typedef boost::shared_ptr<MessageQueueConnector> MessageQueueConnector_ptr;

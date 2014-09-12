@@ -14,14 +14,17 @@ namespace dim {
 
 MonitorDimServer::MonitorDimServer(
 		MessageQueueConnector_ptr messageQueueConnector, std::string hostName,
-		FarmStarter& farmStarter) :
+		FarmStarter& farmStarter, std::string inIpAddress) :
 		hostName_(hostName), cmdh(hostName, messageQueueConnector, farmStarter), initialState_(
 				OFF), stateService_(std::string(hostName + "/State").data(),
 				initialState_), errorMessageService_(
-				std::string(hostName + "/ErrorMessage").data(), (char*) ""), messageQueueConnector_(
+				std::string(hostName + "/ErrorMessage").data(), (char*) ""), inIpAddressService_(
+				std::string(hostName + "/InIpAddress").data(),
+				(char*) inIpAddress.data()), messageQueueConnector_(
 				messageQueueConnector) {
 
-	auto MULTI_STAT_SERVICES = Options::GetStringList(OPTION_MULTI_STAT_SERVICES);
+	auto MULTI_STAT_SERVICES = Options::GetStringList(
+	OPTION_MULTI_STAT_SERVICES);
 	for (unsigned int i = 0; i < MULTI_STAT_SERVICES.size(); i++) {
 		std::string serviceName = std::string(
 				hostName + "/" + MULTI_STAT_SERVICES[i]);
