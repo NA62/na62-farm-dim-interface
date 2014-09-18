@@ -21,7 +21,6 @@
 #include "exceptions/NA62Error.h"
 #include "options/MyOptions.h"
 
-
 namespace na62 {
 namespace dim {
 
@@ -30,21 +29,34 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 				"RunControl/CREAMCrates", -1, this), farmPID_(-1), myConnector_(
 				myConnector) {
 
-	dimListener.registerRunNumberListener(
-			[this](uint runNumber) {myConnector_->sendCommand(
-						"UpdateRunNumber:"
-						+ boost::lexical_cast<std::string>(runNumber));});
+	dimListener.registerRunNumberListener([this](uint runNumber) {
+		if(runNumber==0) {
+			return;
+		}
+		myConnector_->sendCommand(
+				"UpdateRunNumber:"
+				+ boost::lexical_cast<std::string>(runNumber));});
 
-	dimListener.registerBurstNumberListener(
-			[this](uint burstID) {myConnector_->sendCommand(
-						"UpdateBurstID:"
-						+ boost::lexical_cast<std::string>(burstID));});
+	dimListener.registerBurstNumberListener([this](uint burstID) {
+		if(burstID==0) {
+			return;
+		}
+		myConnector_->sendCommand(
+				"UpdateBurstID:"
+				+ boost::lexical_cast<std::string>(burstID));});
 
-	dimListener.registerSobListener([this](uint sob) {myConnector_->sendCommand(
+	dimListener.registerSobListener([this](uint sob) {
+		if(sob==0) {
+			return;
+		}
+		myConnector_->sendCommand(
 				"SOB_Timestamp:"
 				+ boost::lexical_cast<std::string>(sob));});
 
 	dimListener.registerEobListener([this](uint eob) {
+		if(eob==0) {
+			return;
+		}
 		myConnector_->sendCommand(
 				"EOB_Timestamp:"
 				+ boost::lexical_cast<std::string>(eob));});

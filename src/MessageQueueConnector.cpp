@@ -84,7 +84,6 @@ void MessageQueueConnector::run() {
 		}
 		sendState(OFF);
 		std::cout << "done" << std::endl;
-
 	}
 }
 
