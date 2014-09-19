@@ -75,6 +75,7 @@ void MonitorDimServer::updateStatistics(std::string serviceName,
 		std::cerr << "Unknown service: " << serviceName << std::endl;
 		return;
 	}
+
 	longlongStatisticServices_[serviceName]->updateService(value);
 }
 

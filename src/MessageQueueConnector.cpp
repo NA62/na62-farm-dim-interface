@@ -47,7 +47,7 @@ void MessageQueueConnector::run() {
 
 				while (!(statisticsMessage =
 						IPCHandler::tryToReceiveStatistics()).empty()) {
-					if (Options::GetInt(OPTION_VERBOSITY) != 0) {
+					if (Options::GetInt(OPTION_VERBOSITY) > 1) {
 						std::cout << "Received: " << statisticsMessage
 								<< std::endl;
 					}
@@ -84,7 +84,6 @@ void MessageQueueConnector::run() {
 		}
 		sendState(OFF);
 		std::cout << "done" << std::endl;
-
 	}
 }
 
