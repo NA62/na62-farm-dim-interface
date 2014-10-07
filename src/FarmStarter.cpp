@@ -29,34 +29,27 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 				"RunControl/CREAMCrates", -1, this), farmPID_(-1), myConnector_(
 				myConnector) {
 
+	dimListener.registerNextBurstNumberListener([this](uint nextBurst) {
+		myConnector_->sendCommand(
+				"UpdateNextBurstID:"
+				+ boost::lexical_cast<std::string>(nextBurst));});
+
 	dimListener.registerRunNumberListener([this](uint runNumber) {
-		if(runNumber==0) {
-			return;
-		}
 		myConnector_->sendCommand(
 				"UpdateRunNumber:"
 				+ boost::lexical_cast<std::string>(runNumber));});
 
 	dimListener.registerBurstNumberListener([this](uint burstID) {
-		if(burstID==0) {
-			return;
-		}
 		myConnector_->sendCommand(
 				"UpdateBurstID:"
 				+ boost::lexical_cast<std::string>(burstID));});
 
 	dimListener.registerSobListener([this](uint sob) {
-		if(sob==0) {
-			return;
-		}
 		myConnector_->sendCommand(
 				"SOB_Timestamp:"
 				+ boost::lexical_cast<std::string>(sob));});
 
 	dimListener.registerEobListener([this](uint eob) {
-		if(eob==0) {
-			return;
-		}
 		myConnector_->sendCommand(
 				"EOB_Timestamp:"
 				+ boost::lexical_cast<std::string>(eob));});
@@ -87,6 +80,8 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		argv.push_back(
 				"--firstBurstID="
 						+ boost::lexical_cast<std::string>(currentBurstNum));
+
+		argv.push_back("--incrementBurstAtEOB=false"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
 
 		std::string enabledDetectorIDs = "";
 		if (availableSourceIDs_.getSize() <= 0) {
