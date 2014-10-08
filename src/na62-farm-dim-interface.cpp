@@ -49,7 +49,10 @@ int main(int argc, char* argv[]) {
 	char hostname[1024];
 	hostname[1023] = '\0';
 	gethostname(hostname, 1023);
-	strcat(hostname, "-in");
+
+	if (!MyOptions::GetBool(OPTION_IS_MERGER)) {
+		strcat(hostname, "-in");
+	}
 
 	hostent * record = gethostbyname(hostname);
 	if (record == NULL) {
