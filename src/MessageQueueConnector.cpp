@@ -68,13 +68,13 @@ void MessageQueueConnector::run() {
 									boost::lexical_cast<longlong>(statistics));
 						}
 					} catch (boost::bad_lexical_cast const& e) {
-						std::cout << "Bad format of message for service "
+						std::cerr << "Bad format of message for service "
 								<< statisticsName << ": " << statisticsMessage
 								<< std::endl;
 					}
 				}
 			} else {
-				std::cerr << "Heart beat timeout: setting state to OFF"
+				std::cout << "Heart beat timeout: setting state to OFF"
 						<< std::endl;
 				if (lastSentState != OFF) {
 					sendState(OFF);
