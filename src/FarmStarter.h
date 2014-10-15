@@ -36,6 +36,7 @@ private:
 
 	DimInfo availableSourceIDs_;
 	DimInfo activeCREAMS_;
+	DimInfo additionalOptions_;
 
 	pid_t farmPID_;
 	MessageQueueConnector_ptr myConnector_;

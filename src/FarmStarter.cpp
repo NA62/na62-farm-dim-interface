@@ -26,8 +26,8 @@ namespace dim {
 
 FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), activeCREAMS_(
-				"RunControl/CREAMCrates", -1, this), farmPID_(-1), myConnector_(
-				myConnector) {
+				"RunControl/CREAMCrates", -1, this), additionalOptions_("RunControl/PCFarmOptions", -1, this),
+				farmPID_(-1), myConnector_(myConnector) {
 
 	dimListener.registerNextBurstNumberListener([this](uint nextBurst) {
 		myConnector_->sendCommand(
@@ -118,6 +118,25 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 
 		argv.push_back("--L0DataSourceIDs=" + enabledDetectorIDs);
 		argv.push_back("--CREAMCrates=" + creamCrates);
+
+		std::string additionalOptions = "";
+		if (additionalOptions_.getSize() <= 0) {
+			std::cerr
+					<< "Unable to connect to AdditionalOptions service. Unable to start!"
+					<< std::endl;
+		} else {
+			if (additionalOptions_.getString()[0] == (char) 0xFFFFFFFF
+					&& additionalOptions_.getSize() == 4) {
+				std::cerr
+						<< "Additional options is empty."
+						<< std::endl;
+			} else {
+				char* str = additionalOptions_.getString();
+				additionalOptions = std::string(str,
+						additionalOptions_.getSize());
+				argv.push_back(additionalOptions);
+			}
+		}
 
 		return argv;
 	}
