@@ -148,7 +148,7 @@ void FarmStarter::infoHandler() {
 void FarmStarter::startFarm() {
 	try {
 		startFarm(generateStartParameters());
-		myConnector_->sendState(OFF);
+		//myConnector_->sendState(OFF);
 	} catch (NA62Error const& e) {
 		std::cerr << e.what() << std::endl;
 	}
@@ -158,7 +158,7 @@ void FarmStarter::restartFarm() {
 	killFarm();
 	try {
 		startFarm(generateStartParameters());
-		myConnector_->sendState(OFF);
+		//myConnector_->sendState(OFF);
 	} catch (NA62Error const& e) {
 		std::cerr << e.what() << std::endl;
 	}
@@ -209,7 +209,7 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 		std::cerr << "Forking failed! Unable to start the farm program!"
 				<< std::endl;
 	}
-	myConnector_->sendState(OFF);
+	//myConnector_->sendState(OFF);
 }
 
 void FarmStarter::killFarm() {

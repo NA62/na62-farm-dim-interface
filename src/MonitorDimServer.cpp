@@ -53,8 +53,11 @@ MonitorDimServer::~MonitorDimServer() {
 }
 
 void MonitorDimServer::updateState(STATE state) {
-	int state_int = (int) state;
-	stateService_.updateService(state_int);
+	//int state_int = (int) state;
+	initialState_ = state;
+	std::cout << "Updating state to " << state << std::endl;
+	//stateService_.updateService(state_int);
+	stateService_.updateService();
 }
 
 void MonitorDimServer::updateStatistics(std::string serviceName,
