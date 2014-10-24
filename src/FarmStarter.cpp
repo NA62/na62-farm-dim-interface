@@ -75,11 +75,9 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		/*
 		 * PC Farm
 		 */
-		int currentBurstNum = dimListener.getBurstNumber(); // This should always be 0 unless the PC starts during a run!
-
 		argv.push_back(
 				"--firstBurstID="
-						+ boost::lexical_cast<std::string>(currentBurstNum));
+						+ std::to_string(dimListener.getNextBurstNumber()));
 
 		argv.push_back("--incrementBurstAtEOB=false"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
 
