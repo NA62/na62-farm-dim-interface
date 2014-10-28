@@ -9,6 +9,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <csignal>
@@ -26,8 +27,9 @@ namespace dim {
 
 FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), activeCREAMS_(
-				"RunControl/CREAMCrates", -1, this), additionalOptions_("RunControl/PCFarmOptions", -1, this),
-				farmPID_(-1), myConnector_(myConnector) {
+				"RunControl/CREAMCrates", -1, this), additionalOptions_(
+				"RunControl/PCFarmOptions", -1, this), farmPID_(-1), myConnector_(
+				myConnector) {
 
 	dimListener.registerNextBurstNumberListener([this](uint nextBurst) {
 		myConnector_->sendCommand(
@@ -125,14 +127,19 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		} else {
 			if (additionalOptions_.getString()[0] == (char) 0xFFFFFFFF
 					&& additionalOptions_.getSize() == 4) {
-				std::cerr
-						<< "Additional options is empty."
-						<< std::endl;
+				std::cerr << "Additional options is empty." << std::endl;
 			} else {
 				char* str = additionalOptions_.getString();
 				additionalOptions = std::string(str,
 						additionalOptions_.getSize());
-				argv.push_back(additionalOptions);
+				boost::algorithm::trim(additionalOptions);
+
+				std::vector<std::string> strs;
+				boost::split(strs, additionalOptions, boost::is_any_of(" "));
+
+				for(auto option: strs){
+					argv.push_back(option);
+				}
 			}
 		}
 
