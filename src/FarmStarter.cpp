@@ -79,7 +79,7 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 				"--firstBurstID="
 						+ std::to_string(dimListener.getNextBurstNumber()));
 
-		argv.push_back("--incrementBurstAtEOB=false"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
+		argv.push_back("--incrementBurstAtEOB=0"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
 
 		std::string enabledDetectorIDs = "";
 		if (availableSourceIDs_.getSize() <= 0) {
