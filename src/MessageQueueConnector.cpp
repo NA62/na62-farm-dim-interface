@@ -4,7 +4,6 @@
  *  Created on: Jul 11, 2012
  *      Author: Jonas Kunze (kunze.jonas@gmail.com)
  */
-#include <boost/lexical_cast.hpp>
 #include <monitoring/IPCHandler.h>
 
 #include "MonitorDimServer.h"
@@ -36,9 +35,9 @@ void MessageQueueConnector::run() {
 		while (true) {
 
 			state = IPCHandler::tryToReceiveState();
-			while( state != RUNNING && state != TIMEOUT){
+			while (state != RUNNING && state != TIMEOUT) {
 				std::cerr << "Received heart beat: setting state to " << state
-										<< std::endl;
+						<< std::endl;
 				if (lastSentState != state && state != TIMEOUT) {
 					sendState(state);
 					lastSentState = state;
@@ -82,16 +81,21 @@ void MessageQueueConnector::run() {
 								<< std::endl;
 					}
 
-					int counter =0;
+					int counter = 0;
 					IPCHandler::setTimeout(10);
-					while(state != TIMEOUT && counter < 1e5){state = IPCHandler::tryToReceiveState();counter++;}
+					while (state != TIMEOUT && counter < 1e5) {
+						state = IPCHandler::tryToReceiveState();
+						counter++;
+					}
 					IPCHandler::setTimeout(
-									Options::GetInt(OPTION_HEARTBEAT_TIMEOUT_MILLIS));
+							Options::GetInt(OPTION_HEARTBEAT_TIMEOUT_MILLIS));
 				}
 				IPCHandler::setTimeout(10);
-				while(state != TIMEOUT){state = IPCHandler::tryToReceiveState();}
+				while (state != TIMEOUT) {
+					state = IPCHandler::tryToReceiveState();
+				}
 				IPCHandler::setTimeout(
-								Options::GetInt(OPTION_HEARTBEAT_TIMEOUT_MILLIS));
+						Options::GetInt(OPTION_HEARTBEAT_TIMEOUT_MILLIS));
 			} else {
 				std::cout << "Heart beat timeout: setting state to OFF"
 						<< std::endl;
