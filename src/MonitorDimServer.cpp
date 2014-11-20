@@ -61,7 +61,7 @@ void MonitorDimServer::updateState(STATE state) {
 
 	if (state == OFF) {
 		for (auto serviceAndName : multiStatisticServices_) {
-			serviceAndName.second->updateService("");
+			serviceAndName.second->updateService((char*)"");
 		}
 		for (auto serviceAndName : longlongStatisticServices_) {
 			serviceAndName.second->updateService(0);
