@@ -58,6 +58,15 @@ void MonitorDimServer::updateState(STATE state) {
 	std::cout << "Updating state to " << state << std::endl;
 	//stateService_.updateService(state_int);
 	stateService_.updateService();
+
+	if (state == OFF) {
+		for (auto serviceAndName : multiStatisticServices_) {
+			serviceAndName.second->updateService("");
+		}
+		for (auto serviceAndName : longlongStatisticServices_) {
+			serviceAndName.second->updateService(0);
+		}
+	}
 }
 
 void MonitorDimServer::updateStatistics(std::string serviceName,
