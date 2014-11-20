@@ -8,7 +8,6 @@
 #include "FarmStarter.h"
 
 #include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -34,27 +33,27 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 	dimListener.registerNextBurstNumberListener([this](uint nextBurst) {
 		myConnector_->sendCommand(
 				"UpdateNextBurstID:"
-				+ boost::lexical_cast<std::string>(nextBurst));});
+				+ std::to_string(nextBurst));});
 
 	dimListener.registerRunNumberListener([this](uint runNumber) {
 		myConnector_->sendCommand(
 				"UpdateRunNumber:"
-				+ boost::lexical_cast<std::string>(runNumber));});
+				+ std::to_string(runNumber));});
 
 	dimListener.registerBurstNumberListener([this](uint burstID) {
 		myConnector_->sendCommand(
 				"UpdateBurstID:"
-				+ boost::lexical_cast<std::string>(burstID));});
+				+ std::to_string(burstID));});
 
 	dimListener.registerSobListener([this](uint sob) {
 		myConnector_->sendCommand(
 				"SOB_Timestamp:"
-				+ boost::lexical_cast<std::string>(sob));});
+				+ std::to_string(sob));});
 
 	dimListener.registerEobListener([this](uint eob) {
 		myConnector_->sendCommand(
 				"EOB_Timestamp:"
-				+ boost::lexical_cast<std::string>(eob));});
+				+ std::to_string(eob));});
 }
 
 FarmStarter::~FarmStarter() {
@@ -71,7 +70,7 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 
 		argv.push_back(
 				"--currentRunNumber="
-						+ boost::lexical_cast<std::string>(runNumber));
+						+ std::to_string(runNumber));
 		return argv;
 	} else {
 		/*
@@ -137,7 +136,7 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 				std::vector<std::string> strs;
 				boost::split(strs, additionalOptions, boost::is_any_of(" "));
 
-				for(auto option: strs){
+				for (auto option : strs) {
 					argv.push_back(option);
 				}
 			}
