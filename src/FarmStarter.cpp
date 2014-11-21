@@ -54,6 +54,10 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 		myConnector_->sendCommand(
 				"EOB_Timestamp:"
 				+ std::to_string(eob));});
+
+	dimListener.registerRunningMergerListener([this](std::string mergers) {
+		myConnector_->sendCommand(
+				"RunningMergers:"+mergers);});
 }
 
 FarmStarter::~FarmStarter() {
@@ -68,9 +72,7 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		 */
 		int runNumber = dimListener.getRunNumber(); // This should always be 0 unless the PC starts during a run!
 
-		argv.push_back(
-				"--currentRunNumber="
-						+ std::to_string(runNumber));
+		argv.push_back("--currentRunNumber=" + std::to_string(runNumber));
 		return argv;
 	} else {
 		/*
@@ -79,6 +81,8 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		argv.push_back(
 				"--firstBurstID="
 						+ std::to_string(dimListener.getNextBurstNumber()));
+
+		argv.push_back("--mergerHostNames=" + dimListener.getRunningMergers());
 
 		argv.push_back("--incrementBurstAtEOB=0"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
 
