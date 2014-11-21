@@ -82,7 +82,9 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 				"--firstBurstID="
 						+ std::to_string(dimListener.getNextBurstNumber()));
 
-		argv.push_back("--mergerHostNames=" + dimListener.getRunningMergers());
+		std::string mergerList = dimListener.getRunningMergers();
+		boost::replace_all(mergerList, ";", ",");
+		argv.push_back("--mergerHostNames=" + mergerList);
 
 		argv.push_back("--incrementBurstAtEOB=0"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
 
