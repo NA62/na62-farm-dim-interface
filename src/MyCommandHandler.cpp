@@ -31,6 +31,9 @@ void MyCommandHandler::commandHandler() {
 	} else if (message == "stop") {
 		std::cout << "Stop received" << std::endl;
 		farmStarter_.killFarm();
+	} else if (message == "test") {
+		std::cout << "Updatemergers received" << std::endl;
+		farmStarter_.test();
 	} else {
 		std::cout << "Sending command:" << message << std::endl;
 		messageQueueConnector_->sendCommand(message);

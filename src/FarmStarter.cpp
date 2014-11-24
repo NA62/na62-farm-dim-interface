@@ -64,6 +64,11 @@ FarmStarter::~FarmStarter() {
 	// TODO Auto-generated destructor stub
 }
 
+void FarmStarter::test() {
+	myConnector_->sendCommand(
+			"RunningMergers:" + dimListener.getRunningMergers());
+}
+
 std::vector<std::string> FarmStarter::generateStartParameters() {
 	std::vector<std::string> argv;
 	if (Options::GetBool(OPTION_IS_MERGER)) {
