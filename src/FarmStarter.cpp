@@ -55,13 +55,18 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 				"EOB_Timestamp:"
 				+ std::to_string(eob));});
 
-	dimListener.registerRunningMergerListener([this](std::string mergers) {
-		myConnector_->sendCommand(
-				"RunningMergers:"+mergers);});
+//	dimListener.registerRunningMergerListener([this](std::string mergers) {
+//		myConnector_->sendCommand(
+//				"RunningMergers:"+mergers);});
 }
 
 FarmStarter::~FarmStarter() {
 	// TODO Auto-generated destructor stub
+}
+
+void FarmStarter::test() {
+	myConnector_->sendCommand(
+			"RunningMergers:" + dimListener.getRunningMergers());
 }
 
 std::vector<std::string> FarmStarter::generateStartParameters() {
@@ -82,23 +87,23 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 				"--firstBurstID="
 						+ std::to_string(dimListener.getNextBurstNumber()));
 
-		std::string mergerList = dimListener.getRunningMergers();
-		boost::replace_all(mergerList, ";", ",");
-		argv.push_back("--mergerHostNames=" + mergerList);
+//		std::string mergerList = dimListener.getRunningMergers();
+//		boost::replace_all(mergerList, ";", ",");
+//		argv.push_back("--mergerHostNames=" + mergerList);
 
 		argv.push_back("--incrementBurstAtEOB=0"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
 
 		std::string enabledDetectorIDs = "";
 		if (availableSourceIDs_.getSize() <= 0) {
-			std::cerr
+			LOG_ERROR
 					<< "Unable to connect to EnabledDetectors service. Unable to start!"
-					<< std::endl;
+					<< ENDL;
 		} else {
 			if (availableSourceIDs_.getString()[0] == (char) 0xFFFFFFFF
 					&& availableSourceIDs_.getSize() == 4) {
-				std::cerr
+				LOG_ERROR
 						<< "EnabledDetectors is empty. Starting the pc-farm will fail!"
-						<< std::endl;
+						<< ENDL;
 			} else {
 				char* str = availableSourceIDs_.getString();
 				enabledDetectorIDs = std::string(str,
@@ -108,9 +113,9 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 
 		std::string creamCrates = "";
 		if (activeCREAMS_.getSize() <= 0) {
-			std::cerr
+			LOG_ERROR
 					<< "Unable to connect to EnabledDetectors service. Unable to start!"
-					<< std::endl;
+					<< ENDL;
 		} else {
 			if (activeCREAMS_.getString()[0] == (char) 0xFFFFFFFF
 					&& activeCREAMS_.getSize() == 4) {
@@ -126,13 +131,13 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 
 		std::string additionalOptions = "";
 		if (additionalOptions_.getSize() <= 0) {
-			std::cerr
+			LOG_ERROR
 					<< "Unable to connect to AdditionalOptions service. Unable to start!"
-					<< std::endl;
+					<< ENDL;
 		} else {
 			if (additionalOptions_.getString()[0] == (char) 0xFFFFFFFF
 					&& additionalOptions_.getSize() == 4) {
-				std::cerr << "Additional options is empty." << std::endl;
+				LOG_ERROR << "Additional options is empty." << ENDL;
 			} else {
 				char* str = additionalOptions_.getString();
 				additionalOptions = std::string(str,
@@ -160,7 +165,7 @@ void FarmStarter::startFarm() {
 		startFarm(generateStartParameters());
 		//myConnector_->sendState(OFF);
 	} catch (NA62Error const& e) {
-		std::cerr << e.what() << std::endl;
+		LOG_ERROR << e.what() << ENDL;
 	}
 }
 
@@ -170,16 +175,16 @@ void FarmStarter::restartFarm() {
 		startFarm(generateStartParameters());
 		//myConnector_->sendState(OFF);
 	} catch (NA62Error const& e) {
-		std::cerr << e.what() << std::endl;
+		LOG_ERROR << e.what() << ENDL;
 	}
 }
 
 void FarmStarter::startFarm(std::vector<std::string> params) {
-	std::cout << "Starting farm with following parameters: ";
+	LOG_INFO << "Starting farm with following parameters: ";
 	for (std::string param : params) {
-		std::cout << param << " ";
+		LOG_INFO << param << " ";
 	}
-	std::cout << std::endl;
+	LOG_INFO << ENDL;
 
 	if (Options::GetBool(OPTION_IS_MERGER)) {
 		sleep(1);
@@ -200,7 +205,7 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 		boost::filesystem::path execPath(
 				Options::GetString(OPTION_FARM_EXEC_PATH));
 
-		std::cout << "Starting farm program " << execPath.string() << std::endl;
+		LOG_INFO << "Starting farm program " << execPath.string() << ENDL;
 
 		char* argv[params.size() + 2];
 		argv[0] = (char*) execPath.filename().string().data();
@@ -211,20 +216,20 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 		argv[params.size() + 1] = NULL;
 
 		execv(execPath.string().data(), argv);
-		std::cerr << "Main farm program stopped!" << std::endl;
+		LOG_ERROR << "Main farm program stopped!" << ENDL;
 		farmPID_ = -1;
 
 		exit(0);
 	} else if (farmPID_ == -1) {
-		std::cerr << "Forking failed! Unable to start the farm program!"
-				<< std::endl;
+		LOG_ERROR << "Forking failed! Unable to start the farm program!"
+				<< ENDL;
 	}
 	//myConnector_->sendState(OFF);
 }
 
 void FarmStarter::killFarm() {
 	boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
-	std::cerr << "Killing " << execPath.filename() << std::endl;
+	LOG_ERROR << "Killing " << execPath.filename() << ENDL;
 
 	signal(SIGCHLD, SIG_IGN);
 	if (farmPID_ > 0) {

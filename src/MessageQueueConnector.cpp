@@ -36,8 +36,8 @@ void MessageQueueConnector::run() {
 
 			state = IPCHandler::tryToReceiveState();
 			while (state != RUNNING && state != TIMEOUT) {
-				std::cerr << "Received heart beat: setting state to " << state
-						<< std::endl;
+				LOG_ERROR << "Received heart beat: setting state to " << state
+						<< ENDL;
 				if (lastSentState != state && state != TIMEOUT) {
 					sendState(state);
 					lastSentState = state;
@@ -46,8 +46,8 @@ void MessageQueueConnector::run() {
 			}
 
 			if (state != TIMEOUT) {
-				std::cerr << "Received heart beat: setting state to " << state
-						<< std::endl;
+				LOG_ERROR << "Received heart beat: setting state to " << state
+						<< ENDL;
 				if (lastSentState != state) {
 					sendState(state);
 					lastSentState = state;
@@ -56,8 +56,8 @@ void MessageQueueConnector::run() {
 				while (!(statisticsMessage =
 						IPCHandler::tryToReceiveStatistics()).empty()) {
 					if (Options::GetInt(OPTION_VERBOSITY) > 1) {
-						std::cout << "Received: " << statisticsMessage
-								<< std::endl;
+						LOG_INFO << "Received: " << statisticsMessage
+								<< ENDL;
 					}
 
 					std::string statisticsName = statisticsMessage.substr(0,
@@ -76,9 +76,9 @@ void MessageQueueConnector::run() {
 									boost::lexical_cast<longlong>(statistics));
 						}
 					} catch (boost::bad_lexical_cast const& e) {
-						std::cerr << "Bad format of message for service "
+						LOG_ERROR << "Bad format of message for service "
 								<< statisticsName << ": " << statisticsMessage
-								<< std::endl;
+								<< ENDL;
 					}
 
 					int counter = 0;
@@ -97,8 +97,8 @@ void MessageQueueConnector::run() {
 				IPCHandler::setTimeout(
 						Options::GetInt(OPTION_HEARTBEAT_TIMEOUT_MILLIS));
 			} else {
-				std::cout << "Heart beat timeout: setting state to OFF"
-						<< std::endl;
+				LOG_INFO << "Heart beat timeout: setting state to OFF"
+						<< ENDL;
 				if (lastSentState != OFF) {
 					sendState(OFF);
 					lastSentState = OFF;
@@ -106,7 +106,7 @@ void MessageQueueConnector::run() {
 			}
 		}
 		sendState(OFF);
-		std::cout << "done" << std::endl;
+		LOG_INFO << "done" << ENDL;
 	}
 }
 

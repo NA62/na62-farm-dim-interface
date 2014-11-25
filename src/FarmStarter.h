@@ -27,6 +27,7 @@ public:
 	void restartFarm();
 	void startFarm();
 	void killFarm();
+	void test();
 
 private:
 	std::vector<std::string> generateStartParameters();

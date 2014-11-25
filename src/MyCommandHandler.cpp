@@ -18,21 +18,24 @@ void MyCommandHandler::commandHandler() {
 	message.resize(currCmnd->getSize());
 	message = std::string(currCmnd->getString());
 	if (Options::GetInt(OPTION_VERBOSITY) != 0) {
-		std::cout << "Received message: " << message << std::endl;
+		LOG_INFO << "Received message: " << message << ENDL;
 	}
 
 	std::transform(message.begin(), message.end(), message.begin(), ::tolower);
 	if (message == "start") {
-		std::cout << "Start received" << std::endl;
+		LOG_INFO << "Start received" << ENDL;
 		farmStarter_.startFarm();
 	} else if (message == "restart") {
-		std::cout << "Restart received" << std::endl;
+		LOG_INFO << "Restart received" << ENDL;
 		farmStarter_.restartFarm();
 	} else if (message == "stop") {
-		std::cout << "Stop received" << std::endl;
+		LOG_INFO << "Stop received" << ENDL;
 		farmStarter_.killFarm();
+	} else if (message == "test") {
+		LOG_INFO << "Updatemergers received" << ENDL;
+		farmStarter_.test();
 	} else {
-		std::cout << "Sending command:" << message << std::endl;
+		LOG_INFO << "Sending command:" << message << ENDL;
 		messageQueueConnector_->sendCommand(message);
 	}
 }
