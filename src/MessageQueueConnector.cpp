@@ -56,8 +56,7 @@ void MessageQueueConnector::run() {
 				while (!(statisticsMessage =
 						IPCHandler::tryToReceiveStatistics()).empty()) {
 					if (Options::GetInt(OPTION_VERBOSITY) > 1) {
-						LOG_INFO << "Received: " << statisticsMessage
-								<< ENDL;
+						LOG_INFO << "Received: " << statisticsMessage << ENDL;
 					}
 
 					std::string statisticsName = statisticsMessage.substr(0,
@@ -66,9 +65,7 @@ void MessageQueueConnector::run() {
 							statisticsMessage.find(':') + 1);
 
 					try {
-						if (statisticsName == "ErrorMessage") {
-							dimServer_->updateErrorMessage(statistics);
-						} else if (statistics.find(";") != std::string::npos) { // separated key/value pairs
+						if (statistics.find(";") != std::string::npos) { // separated key/value pairs
 							dimServer_->updateStatistics(statisticsName,
 									statistics);
 						} else {
@@ -97,8 +94,7 @@ void MessageQueueConnector::run() {
 				IPCHandler::setTimeout(
 						Options::GetInt(OPTION_HEARTBEAT_TIMEOUT_MILLIS));
 			} else {
-				LOG_INFO << "Heart beat timeout: setting state to OFF"
-						<< ENDL;
+				LOG_INFO << "Heart beat timeout: setting state to OFF" << ENDL;
 				if (lastSentState != OFF) {
 					sendState(OFF);
 					lastSentState = OFF;

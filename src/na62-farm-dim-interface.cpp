@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 	char hostName[1024];
 	hostName[1023] = '\0';
 	if (gethostname(hostName, 1023)) {
-		LOG_ERROR << "Unable to get host name! Refusing to start.";
+		LOG_ERROR << "Unable to get host name! Refusing to start." << ENDL;
 		exit(1);
 	}
 
