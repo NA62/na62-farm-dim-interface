@@ -17,8 +17,7 @@ MonitorDimServer::MonitorDimServer(
 		FarmStarter& farmStarter, std::string inIpAddress) :
 		hostName_(hostName), cmdh(hostName, messageQueueConnector, farmStarter), initialState_(
 				OFF), stateService_(std::string(hostName + "/State").data(),
-				initialState_), errorMessageService_(
-				std::string(hostName + "/ErrorMessage").data(), (char*) ""), inIpAddressService_(
+				initialState_), inIpAddressService_(
 				std::string(hostName + "/InIpAddress").data(),
 				(char*) inIpAddress.data()), messageQueueConnector_(
 				messageQueueConnector) {
@@ -31,7 +30,8 @@ MonitorDimServer::MonitorDimServer(
 		LOG_INFO << "Starting service " << serviceName << ENDL;
 
 		DimService_ptr ptr(new DimService(serviceName.data(), (char*) ""));
-		multiStatisticServices_[MULTI_STAT_SERVICES[i]] = ptr;
+		multiStatisticServices_[MULTI_STAT_SERVICES[i]] = std::make_pair(ptr,
+				"");
 	}
 
 	auto LONGLONG_SERVICES = Options::GetStringList(OPTION_LONGLONG_SERVICES);
@@ -42,7 +42,8 @@ MonitorDimServer::MonitorDimServer(
 		LOG_INFO << "Starting service " << serviceName << ENDL;
 
 		DimService_ptr ptr(new DimService(serviceName.data(), initialVal));
-		longlongStatisticServices_[LONGLONG_SERVICES[i]] = ptr;
+		longlongStatisticServices_[LONGLONG_SERVICES[i]] = std::make_pair(ptr,
+				0);
 	}
 
 	start(hostName.data());
@@ -61,10 +62,13 @@ void MonitorDimServer::updateState(STATE state) {
 
 	if (state == OFF) {
 		for (auto serviceAndName : multiStatisticServices_) {
-			serviceAndName.second->updateService((char*)"");
+			serviceAndName.second.second = "";
+			serviceAndName.second.first->updateService(
+					(char*) serviceAndName.second.second.c_str());
 		}
 		for (auto serviceAndName : longlongStatisticServices_) {
-			serviceAndName.second->updateService(0);
+			serviceAndName.second.second = 0;
+			serviceAndName.second.first->updateService();
 		}
 	}
 }
@@ -76,8 +80,9 @@ void MonitorDimServer::updateStatistics(std::string serviceName,
 		LOG_ERROR << "Unknown service: " << serviceName << ENDL;
 		return;
 	}
-	multiStatisticServices_[serviceName]->updateService(
-			(char*) statistics.data());
+	multiStatisticServices_[serviceName].second = std::move(statistics);
+	multiStatisticServices_[serviceName].first->updateService(
+			(char*) multiStatisticServices_[serviceName].second.data());
 }
 
 void MonitorDimServer::updateStatistics(std::string serviceName,
@@ -88,11 +93,8 @@ void MonitorDimServer::updateStatistics(std::string serviceName,
 		return;
 	}
 
-	longlongStatisticServices_[serviceName]->updateService(value);
-}
-
-void MonitorDimServer::updateErrorMessage(std::string message) {
-	errorMessageService_.updateService((char*) message.data());
+	longlongStatisticServices_[serviceName].second = value;
+	longlongStatisticServices_[serviceName].first->updateService();
 }
 
 } /* namespace dim */
