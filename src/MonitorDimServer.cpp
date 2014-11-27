@@ -35,15 +35,16 @@ MonitorDimServer::MonitorDimServer(
 	}
 
 	auto LONGLONG_SERVICES = Options::GetStringList(OPTION_LONGLONG_SERVICES);
-	longlong initialVal = 0;
 	for (unsigned int i = 0; i < LONGLONG_SERVICES.size(); i++) {
 		std::string serviceName = std::string(
 				hostName + "/" + LONGLONG_SERVICES[i]);
 		LOG_INFO << "Starting service " << serviceName << ENDL;
 
+		longlong initialVal = 0;
 		DimService_ptr ptr(new DimService(serviceName.data(), initialVal));
 		longlongStatisticServices_[LONGLONG_SERVICES[i]] = std::make_pair(ptr,
-				0);
+				std::move(initialVal));
+		ptr->updateService(longlongStatisticServices_[LONGLONG_SERVICES[i]].second);
 	}
 
 	start(hostName.data());
