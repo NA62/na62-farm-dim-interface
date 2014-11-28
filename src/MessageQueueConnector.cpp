@@ -68,6 +68,9 @@ void MessageQueueConnector::run() {
 						if (statistics.find(";") != std::string::npos) { // separated key/value pairs
 							dimServer_->updateStatistics(statisticsName,
 									statistics);
+						} else if (statistics.find("{") != std::string::npos) { // JSON string
+							dimServer_->updateStatistics(statisticsName,
+									statistics);
 						} else {
 							dimServer_->updateStatistics(statisticsName,
 									boost::lexical_cast<longlong>(statistics));
