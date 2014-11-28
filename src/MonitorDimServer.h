@@ -35,7 +35,10 @@ private:
 
 	int initialState_;
 	DimService stateService_;
+
+	std::string inIpAddress_;
 	DimService inIpAddressService_;
+
 	std::map<std::string, std::pair<DimService_ptr, std::string>> multiStatisticServices_;
 	std::map<std::string, std::pair<DimService_ptr, long long>> longlongStatisticServices_;
 

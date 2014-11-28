@@ -17,9 +17,9 @@ MonitorDimServer::MonitorDimServer(
 		FarmStarter& farmStarter, std::string inIpAddress) :
 		hostName_(hostName), cmdh(hostName, messageQueueConnector, farmStarter), initialState_(
 				OFF), stateService_(std::string(hostName + "/State").data(),
-				initialState_), inIpAddressService_(
+				initialState_), inIpAddress_(inIpAddress), inIpAddressService_(
 				std::string(hostName + "/InIpAddress").data(),
-				(char*) inIpAddress.data()), messageQueueConnector_(
+				(char*) inIpAddress_.data()), messageQueueConnector_(
 				messageQueueConnector) {
 
 	auto MULTI_STAT_SERVICES = Options::GetStringList(
