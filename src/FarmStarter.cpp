@@ -55,9 +55,12 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 				"EOB_Timestamp:"
 				+ std::to_string(eob));});
 
-//	dimListener.registerRunningMergerListener([this](std::string mergers) {
-//		myConnector_->sendCommand(
-//				"RunningMergers:"+mergers);});
+	dimListener.registerRunningMergerListener([this](std::string mergers) {
+		if(mergers.empty()) {
+			myConnector_->sendCommand(
+					"RunningMergers:"+mergers);
+		}
+	});
 }
 
 FarmStarter::~FarmStarter() {
@@ -87,9 +90,13 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 				"--firstBurstID="
 						+ std::to_string(dimListener.getNextBurstNumber()));
 
-//		std::string mergerList = dimListener.getRunningMergers();
-//		boost::replace_all(mergerList, ";", ",");
-//		argv.push_back("--mergerHostNames=" + mergerList);
+		std::string mergerList;
+		while ((mergerList = dimListener.getRunningMergers()).size() == 0) {
+			LOG_ERROR << "Received empty MergerList! Waiting..." << ENDL;
+			usleep(500000);
+		}
+		boost::replace_all(mergerList, ";", ",");
+		argv.push_back("--mergerHostNames=" + mergerList);
 
 		argv.push_back("--incrementBurstAtEOB=0"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
 
@@ -163,7 +170,6 @@ void FarmStarter::infoHandler() {
 void FarmStarter::startFarm() {
 	try {
 		startFarm(generateStartParameters());
-		//myConnector_->sendState(OFF);
 	} catch (NA62Error const& e) {
 		LOG_ERROR << e.what() << ENDL;
 	}
@@ -172,8 +178,8 @@ void FarmStarter::startFarm() {
 void FarmStarter::restartFarm() {
 	killFarm();
 	try {
+		killFarm();
 		startFarm(generateStartParameters());
-		//myConnector_->sendState(OFF);
 	} catch (NA62Error const& e) {
 		LOG_ERROR << e.what() << ENDL;
 	}
@@ -189,11 +195,6 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 	if (Options::GetBool(OPTION_IS_MERGER)) {
 		sleep(1);
 	}
-
-//	if (farmPID_ > 0) {
-//		myConnector_->sendState(OFF);
-//		return;
-//	}
 
 	if (farmPID_ > 0) {
 		killFarm();
@@ -224,7 +225,7 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 		LOG_ERROR << "Forking failed! Unable to start the farm program!"
 				<< ENDL;
 	}
-	//myConnector_->sendState(OFF);
+//myConnector_->sendState(OFF);
 }
 
 void FarmStarter::killFarm() {
