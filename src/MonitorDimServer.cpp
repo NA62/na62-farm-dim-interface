@@ -43,8 +43,9 @@ MonitorDimServer::MonitorDimServer(
 		longlong initialVal = 0;
 		DimService_ptr ptr(new DimService(serviceName.data(), initialVal));
 		longlongStatisticServices_[LONGLONG_SERVICES[i]] = std::make_pair(ptr,
-				std::move(initialVal));
-		ptr->updateService(longlongStatisticServices_[LONGLONG_SERVICES[i]].second);
+				initialVal);
+		ptr->updateService(
+				longlongStatisticServices_[LONGLONG_SERVICES[i]].second);
 	}
 
 	start(hostName.data());
