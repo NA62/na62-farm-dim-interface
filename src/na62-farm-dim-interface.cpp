@@ -1,6 +1,6 @@
 //============================================================================
 // Name        : na62-farm-control.cpp
-// Author      : 
+// Author      : Jonas Kunze (kunze.jonas@gmail.com)
 // Version     :
 // Copyright   : Your copyright notice
 // Description : Adapter between the farm software and the run control dmi server
