@@ -91,8 +91,11 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 						+ std::to_string(dimListener.getNextBurstNumber()));
 
 		std::string mergerList;
-		while ((mergerList = dimListener.getRunningMergers()).size() == 0) {
-			LOG_ERROR << "Received empty MergerList! Waiting..." << ENDL;
+		uint trials=0;
+		uint max_trials=20;
+		while ((mergerList = dimListener.getRunningMergers()).size() == 0 && trials!=max_trials) {
+			trials++;
+			LOG_ERROR << "Received empty MergerList! Waiting... (" << trials << "/)" << max_trials << ENDL;
 			usleep(500000);
 		}
 		boost::replace_all(mergerList, ";", ",");
@@ -179,6 +182,7 @@ void FarmStarter::restartFarm() {
 	killFarm();
 	try {
 		killFarm();
+		sleep(1);
 		startFarm(generateStartParameters());
 	} catch (NA62Error const& e) {
 		LOG_ERROR << e.what() << ENDL;
@@ -240,6 +244,7 @@ void FarmStarter::killFarm() {
 	}
 	system(std::string("killall -9 " + execPath.filename().string()).data());
 	farmPID_ = 0;
+	myConnector_->sendState(OFF);
 }
 } /* namespace dim */
 } /* namespace na62 */
