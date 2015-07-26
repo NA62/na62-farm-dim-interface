@@ -93,11 +93,12 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		std::string mergerList;
 		uint trials=0;
 		uint max_trials=20;
-		while ((mergerList = dimListener.getRunningMergers()).size() == 0 && trials!=max_trials) {
-			trials++;
-			LOG_ERROR << "Received empty MergerList! Waiting... (" << trials << "/)" << max_trials << ENDL;
-			usleep(500000);
-		}
+		mergerList = dimListener.getRunningMergers();
+		//while ((mergerList = dimListener.getRunningMergers()).size() == 0 && trials!=max_trials) {
+//			trials++;
+			//LOG_ERROR << "Received empty MergerList! Waiting... (" << trials << "/)" << max_trials << ENDL;
+			//usleep(500000);
+		//}
 		boost::replace_all(mergerList, ";", ",");
 		argv.push_back("--mergerHostNames=" + mergerList);
 
