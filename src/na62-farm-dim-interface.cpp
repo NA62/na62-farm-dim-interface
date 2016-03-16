@@ -44,8 +44,6 @@ int main(int argc, char* argv[]) {
 	MessageQueueConnector_ptr myConnector(
 			new na62::dim::MessageQueueConnector());
 
-	FarmStarter starter(myConnector);
-
 	char hostname[1024];
 	hostname[1023] = '\0';
 	gethostname(hostname, 1023);
@@ -62,6 +60,8 @@ int main(int argc, char* argv[]) {
 
 	in_addr * address = (in_addr *) record->h_addr;
 	std::string myIP = inet_ntoa(*address);
+
+	FarmStarter starter(myConnector);
 
 	na62::dim::MonitorDimServer_ptr dimServer_(
 			new MonitorDimServer(myConnector, std::string(hostName), starter,

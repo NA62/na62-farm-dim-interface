@@ -34,7 +34,7 @@ private:
 	void startFarm(std::vector<std::string> param);
 
 	void infoHandler();
-
+	std::string myIP_;
 	DimInfo availableSourceIDs_;
 	DimInfo activeCREAMS_;
 	DimInfo additionalOptions_;

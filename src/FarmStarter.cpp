@@ -55,7 +55,7 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 				"EOB_Timestamp:"
 				+ std::to_string(eob));});
 
-	dimListener.registerRunningMergerListener([this](std::string mergers) {
+	dimListener.registerRunningMergersListener([this](std::string mergers) {
 		if(mergers.empty()) {
 			myConnector_->sendCommand(
 					"RunningMergers:"+mergers);
@@ -101,6 +101,17 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		//}
 		boost::replace_all(mergerList, ";", ",");
 		argv.push_back("--mergerHostNames=" + mergerList);
+
+		std::string farmList = dimListener.getRunningFarmNodes();
+		//while ((mergerList = dimListener.getRunningMergers()).size() == 0 && trials!=max_trials) {
+//			trials++;
+			//LOG_ERROR << "Received empty MergerList! Waiting... (" << trials << "/)" << max_trials << ENDL;
+			//usleep(500000);
+		//}
+		boost::replace_all(farmList, ";", ",");
+		argv.push_back("--farmHostNames=" + farmList);
+
+		argv.push_back("--numberOfFragmentsPerMEP=" + std::to_string(dimListener.getMepFactor()));
 
 		argv.push_back("--incrementBurstAtEOB=0"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
 
