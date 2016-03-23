@@ -25,9 +25,10 @@ namespace na62 {
 namespace dim {
 
 FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
-		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), activeCREAMS_(
-				"RunControl/CREAMCrates", -1, this), additionalOptions_(
-				"RunControl/PCFarmOptions", -1, this), farmPID_(-1), myConnector_(
+		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), availableL1SourceIDs_("RunControl/L1EnabledDetectors", -1, this), activeCREAMS_(
+				"RunControl/CREAMCrates", -1, this), mepFactor_("RunControl/MEPFactor", -1, this),
+				enabledPCNodes_("RunControl/EnabledPCNodes", -1, this),
+				additionalOptions_("RunControl/PCFarmOptions", -1, this), farmPID_(-1), myConnector_(
 				myConnector) {
 
 	dimListener.registerNextBurstNumberListener([this](uint nextBurst) {
@@ -55,7 +56,7 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 				"EOB_Timestamp:"
 				+ std::to_string(eob));});
 
-	dimListener.registerRunningMergersListener([this](std::string mergers) {
+	dimListener.registerRunningMergerListener([this](std::string mergers) {
 		if(mergers.empty()) {
 			myConnector_->sendCommand(
 					"RunningMergers:"+mergers);
@@ -94,24 +95,30 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 		uint trials=0;
 		uint max_trials=20;
 		mergerList = dimListener.getRunningMergers();
-		//while ((mergerList = dimListener.getRunningMergers()).size() == 0 && trials!=max_trials) {
-//			trials++;
-			//LOG_ERROR << "Received empty MergerList! Waiting... (" << trials << "/)" << max_trials << ENDL;
-			//usleep(500000);
-		//}
 		boost::replace_all(mergerList, ";", ",");
 		argv.push_back("--mergerHostNames=" + mergerList);
 
-		std::string farmList = dimListener.getRunningFarmNodes();
-		//while ((mergerList = dimListener.getRunningMergers()).size() == 0 && trials!=max_trials) {
-//			trials++;
-			//LOG_ERROR << "Received empty MergerList! Waiting... (" << trials << "/)" << max_trials << ENDL;
-			//usleep(500000);
-		//}
+		std::string farmList = "";
+		if (enabledPCNodes_.getSize() <= 0) {
+			LOG_ERROR
+					<< "Unable to connect to EnabledPCNodes service. Unable to start!"
+					<< ENDL;
+		} else {
+			if (enabledPCNodes_.getString()[0] == (char) 0xFFFFFFFF) {
+				LOG_ERROR
+						<< "EnabledPCNodes is empty. Starting the pc-farm will fail!"
+						<< ENDL;
+			} else {
+				char* str = enabledPCNodes_.getString();
+				farmList = std::string(str, enabledPCNodes_.getSize());
+			}
+		}
+
 		boost::replace_all(farmList, ";", ",");
 		argv.push_back("--farmHostNames=" + farmList);
 
-		argv.push_back("--numberOfFragmentsPerMEP=" + std::to_string(dimListener.getMepFactor()));
+
+		argv.push_back("--numberOfFragmentsPerMEP=" + std::to_string(mepFactor_.getInt()));
 
 		argv.push_back("--incrementBurstAtEOB=0"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
 
@@ -130,6 +137,22 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 				char* str = availableSourceIDs_.getString();
 				enabledDetectorIDs = std::string(str,
 						availableSourceIDs_.getSize());
+			}
+		}
+
+		std::string enabledL1DetectorIDs = "";
+		if (availableL1SourceIDs_.getSize() <= 0) {
+			LOG_ERROR
+					<< "Unable to connect to L1EnabledDetectors service. Unable to start!"
+					<< ENDL;
+		} else {
+			if (availableL1SourceIDs_.getString()[0] == (char) 0xFFFFFFFF
+					&& availableL1SourceIDs_.getSize() == 4) {
+				LOG_INFO << "L1EnabledDetectors is empty." << ENDL;
+			} else {
+				char* str = availableL1SourceIDs_.getString();
+				enabledL1DetectorIDs = std::string(str, availableL1SourceIDs_.getSize());
+				argv.push_back("--L1DataSourceIDs=" + enabledL1DetectorIDs);
 			}
 		}
 
@@ -175,6 +198,10 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 			}
 		}
 
+		for (auto a : argv) {
+
+			LOG_ERROR << a << " ";
+		}
 		return argv;
 	}
 }
