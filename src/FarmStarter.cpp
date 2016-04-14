@@ -146,12 +146,13 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 					<< "Unable to connect to L1EnabledDetectors service. Unable to start!"
 					<< ENDL;
 		} else {
-			if (availableL1SourceIDs_.getString()[0] == (char) 0xFFFFFFFF
-					&& availableL1SourceIDs_.getSize() == 4) {
+			if ((availableL1SourceIDs_.getString()[0] == (char) 0xFFFFFFFF || availableL1SourceIDs_.getString()[0] == (char) 0x0 )
+					&& availableL1SourceIDs_.getSize() <= 4) {
 				LOG_INFO << "L1EnabledDetectors is empty." << ENDL;
 			} else {
 				char* str = availableL1SourceIDs_.getString();
 				enabledL1DetectorIDs = std::string(str, availableL1SourceIDs_.getSize());
+				LOG_ERROR << "Enabled L1 dets " << enabledL1DetectorIDs;
 				argv.push_back("--L1DataSourceIDs=" + enabledL1DetectorIDs);
 			}
 		}
