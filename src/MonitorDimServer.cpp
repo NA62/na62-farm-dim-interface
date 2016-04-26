@@ -27,7 +27,7 @@ MonitorDimServer::MonitorDimServer(
 	for (unsigned int i = 0; i < MULTI_STAT_SERVICES.size(); i++) {
 		std::string serviceName = std::string(
 				hostName + "/" + MULTI_STAT_SERVICES[i]);
-		LOG_INFO << "Starting service " << serviceName << ENDL;
+		LOG_INFO("Starting service " + serviceName);
 
 		DimService_ptr ptr(new DimService(serviceName.data(), (char*) ""));
 		multiStatisticServices_[MULTI_STAT_SERVICES[i]] = std::make_pair(ptr,
@@ -38,7 +38,7 @@ MonitorDimServer::MonitorDimServer(
 	for (unsigned int i = 0; i < LONGLONG_SERVICES.size(); i++) {
 		std::string serviceName = std::string(
 				hostName + "/" + LONGLONG_SERVICES[i]);
-		LOG_INFO << "Starting service " << serviceName << ENDL;
+		LOG_INFO("Starting service " + serviceName);
 
 		longlong initialVal = 0;
 		DimService_ptr ptr(new DimService(serviceName.data(), initialVal));
@@ -58,7 +58,7 @@ MonitorDimServer::~MonitorDimServer() {
 void MonitorDimServer::updateState(STATE state) {
 	//int state_int = (int) state;
 	initialState_ = state;
-	LOG_INFO << "Updating state to " << state << ENDL;
+	LOG_INFO("Updating state to " + state);
 	//stateService_.updateService(state_int);
 	stateService_.updateService();
 
@@ -79,7 +79,7 @@ void MonitorDimServer::updateStatistics(std::string serviceName,
 		std::string statistics) {
 	if (multiStatisticServices_.find(serviceName)
 			== multiStatisticServices_.end()) {
-		LOG_ERROR << "Unknown service: " << serviceName << ENDL;
+		LOG_ERROR("Unknown service: " + serviceName);
 		return;
 	}
 	multiStatisticServices_[serviceName].second = std::move(statistics);
@@ -91,7 +91,7 @@ void MonitorDimServer::updateStatistics(std::string serviceName,
 		longlong value) {
 	if (longlongStatisticServices_.find(serviceName)
 			== longlongStatisticServices_.end()) {
-		LOG_ERROR << "Unknown service: " << serviceName << ENDL;
+		LOG_ERROR("Unknown service: " + serviceName);
 		return;
 	}
 

@@ -36,8 +36,7 @@ void MessageQueueConnector::run() {
 
 			state = IPCHandler::tryToReceiveState();
 			while (state != RUNNING && state != TIMEOUT) {
-				LOG_ERROR << "Received heart beat: setting state to " << state
-						<< ENDL;
+				LOG_INFO( "Received heart beat: setting state to " + state);
 				if (lastSentState != state && state != TIMEOUT) {
 					sendState(state);
 					lastSentState = state;
@@ -46,8 +45,7 @@ void MessageQueueConnector::run() {
 			}
 
 			if (state != TIMEOUT) {
-				LOG_ERROR << "Received heart beat: setting state to " << state
-						<< ENDL;
+				LOG_INFO("Received heart beat: setting state to " + state);
 				if (lastSentState != state) {
 					sendState(state);
 					lastSentState = state;
@@ -56,7 +54,7 @@ void MessageQueueConnector::run() {
 				while (!(statisticsMessage =
 						IPCHandler::tryToReceiveStatistics()).empty()) {
 					if (Options::GetInt(OPTION_VERBOSITY) > 1) {
-						LOG_INFO << "Received: " << statisticsMessage << ENDL;
+						LOG_INFO ("Received: " + statisticsMessage);
 					}
 
 					std::string statisticsName = statisticsMessage.substr(0,
@@ -76,9 +74,7 @@ void MessageQueueConnector::run() {
 									boost::lexical_cast<longlong>(statistics));
 						}
 					} catch (boost::bad_lexical_cast const& e) {
-						LOG_ERROR << "Bad format of message for service "
-								<< statisticsName << ": " << statisticsMessage
-								<< ENDL;
+						LOG_ERROR("Bad format of message for service "+ statisticsName +": " + statisticsMessage);
 					}
 
 					int counter = 0;
@@ -97,7 +93,7 @@ void MessageQueueConnector::run() {
 				IPCHandler::setTimeout(
 						Options::GetInt(OPTION_HEARTBEAT_TIMEOUT_MILLIS));
 			} else {
-				LOG_INFO << "Heart beat timeout: setting state to OFF" << ENDL;
+				LOG_INFO("Heart beat timeout: setting state to OFF");
 				if (lastSentState != OFF) {
 					sendState(OFF);
 					lastSentState = OFF;
@@ -105,7 +101,6 @@ void MessageQueueConnector::run() {
 			}
 		}
 		sendState(OFF);
-		LOG_INFO << "done" << ENDL;
 	}
 }
 

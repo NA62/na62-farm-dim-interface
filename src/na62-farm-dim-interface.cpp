@@ -29,13 +29,13 @@ int main(int argc, char* argv[]) {
 	/*
 	 * Read program parameters
 	 */
-	LOG_INFO << "Initializing Options" << ENDL;
+	LOG_INFO("Initializing Options");
 	MyOptions::Load(argc, argv);
 
 	char hostName[1024];
 	hostName[1023] = '\0';
 	if (gethostname(hostName, 1023)) {
-		LOG_ERROR << "Unable to get host name! Refusing to start." << ENDL;
+		LOG_ERROR("Unable to get host name! Refusing to start.");
 		exit(1);
 	}
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 
 	hostent * record = gethostbyname(hostname);
 	if (record == NULL) {
-		LOG_ERROR << "Unable to determine IP of " << hostname << ENDL;
+		LOG_ERROR("Unable to determine IP of " + std::string(hostname));
 		exit(1);
 	}
 

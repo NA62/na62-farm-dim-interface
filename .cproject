@@ -236,6 +236,118 @@
 				</externalSettings>
 			</storageModule>
 		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.config.gnu.exe.debug.976168838.951390012">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.976168838.951390012" moduleId="org.eclipse.cdt.core.settings" name="Debug_ERS">
+				<macros>
+					<stringMacro name="tag" type="VALUE_TEXT" value="-gcc49-mt-1_59"/>
+				</macros>
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.exe.debug.976168838.951390012" name="Debug_ERS" parent="cdt.managedbuild.config.gnu.exe.debug">
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.976168838.951390012." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.1832583228" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug">
+							<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.debug.1377615613" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.debug"/>
+							<builder buildPath="${workspace_loc:/na62-farm-control/Debug}" id="cdt.managedbuild.target.gnu.builder.exe.debug.204025655" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="24" superClass="cdt.managedbuild.target.gnu.builder.exe.debug"/>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1886515057" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1296696634" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
+								<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.1657748245" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.289520054" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.default" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.paths.1850201940" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/na62-farm-lib-networking}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/na62-farm-lib}&quot;"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.preprocessor.def.1953188533" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="USE_ERS"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.other.other.1153000500" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -std=c++11" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.7656161" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.90897237" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1195634490" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
+								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.816004623" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" value="gnu.c.optimization.level.most" valueType="enumerated"/>
+								<option id="gnu.c.compiler.exe.debug.option.debugging.level.1290582445" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" value="gnu.c.debugging.level.default" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.832164022" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/na62-farm-lib-networking}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/na62-farm-lib}&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.dialect.std.576185924" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.44219826" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.540388312" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1465926579" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
+								<option id="gnu.cpp.link.option.libs.1443840532" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="na62-farm-lib-networking"/>
+									<listOptionValue builtIn="false" value="na62-farm-lib"/>
+									<listOptionValue builtIn="false" value="ers"/>
+									<listOptionValue builtIn="false" value="boost_system${tag}"/>
+									<listOptionValue builtIn="false" value="boost_thread${tag}"/>
+									<listOptionValue builtIn="false" value="pthread"/>
+									<listOptionValue builtIn="false" value="dim"/>
+									<listOptionValue builtIn="false" value="boost_program_options${tag}"/>
+									<listOptionValue builtIn="false" value="boost_filesystem${tag}"/>
+									<listOptionValue builtIn="false" value="glog"/>
+									<listOptionValue builtIn="false" value="zmq"/>
+									<listOptionValue builtIn="false" value="dl"/>
+								</option>
+								<option id="gnu.cpp.link.option.paths.711159024" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/na62-farm-lib-networking/Debug_ERS}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/na62-farm-lib/Debug_ERS}&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.945565093" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1287199712" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
+								<option id="gnu.both.asm.option.include.paths.2011321296" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/na62-farm-lib-networking}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/na62-farm-lib}&quot;"/>
+									<listOptionValue builtIn="false" value="/afs/cern.ch/sw/IntelSoftware/linux/x86_64/xe2013/composer_xe_2013_sp1.2.144/ipp/include"/>
+									<listOptionValue builtIn="false" value="/afs/cern.ch/sw/IntelSoftware/linux/x86_64/xe2013/composer_xe_2013_sp1.2.144/mkl/include"/>
+									<listOptionValue builtIn="false" value="/afs/cern.ch/sw/IntelSoftware/linux/x86_64/xe2013/composer_xe_2013_sp1.2.144/tbb/include"/>
+									<listOptionValue builtIn="false" value="/mnt/sw/LCG/include"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1889880391" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.976168838.951390012.src/na62-farm-dim-interface.cpp" name="na62-farm-dim-interface.cpp" rcbsApplicability="disable" resourcePath="src/na62-farm-dim-interface.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1860510111">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1860510111" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1296696634">
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1591979572" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+						</tool>
+					</fileInfo>
+					<sourceEntries>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
+				<externalSettings containerId="na62-farm-lib;cdt.managedbuild.config.gnu.lib.release.310524003.808849853" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/na62-farm-lib"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/na62-farm-lib/GLOG_DEBUG"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/na62-farm-lib/Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="na62-farm-lib" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<externalSettings containerId="na62-farm-lib-networking;cdt.managedbuild.config.gnu.lib.debug.1267067609" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/na62-farm-lib-networking"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/na62-farm-lib-networking/Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="na62-farm-lib-networking" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+			</storageModule>
+		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="na62-farm-control.cdt.managedbuild.target.gnu.exe.960236741" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
