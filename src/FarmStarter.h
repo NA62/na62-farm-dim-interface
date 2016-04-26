@@ -37,11 +37,9 @@ private:
 	std::string myIP_;
 	DimInfo availableSourceIDs_;
 	DimInfo availableL1SourceIDs_;
-	DimInfo activeCREAMS_;
-	DimInfo additionalOptions_;
 	DimInfo mepFactor_;
 	DimInfo enabledPCNodes_;
-
+	DimInfo additionalOptions_;
 	pid_t farmPID_;
 	MessageQueueConnector_ptr myConnector_;
 
