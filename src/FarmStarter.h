@@ -39,6 +39,7 @@ private:
 	DimInfo availableL1SourceIDs_;
 	DimInfo mepFactor_;
 	DimInfo enabledPCNodes_;
+	DimInfo enabledMergerNodes_;
 	DimInfo additionalOptions_;
 	pid_t farmPID_;
 	MessageQueueConnector_ptr myConnector_;

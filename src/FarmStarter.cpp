@@ -27,7 +27,7 @@ namespace dim {
 FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), availableL1SourceIDs_("RunControl/L1EnabledDetectors", -1, this),
 				mepFactor_("RunControl/MEPFactor", -1, this),
-				enabledPCNodes_("RunControl/EnabledPCNodes", -1, this),
+				enabledPCNodes_("RunControl/EnabledPCNodes", -1, this), enabledMergerNodes_("RunControl/EnabledMergers", -1, this),
 				additionalOptions_("RunControl/PCFarmOptions", -1, this), farmPID_(-1), myConnector_(myConnector) {
 
 	dimListener.registerNextBurstNumberListener([this](uint nextBurst) {
@@ -55,12 +55,14 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 				"EOB_Timestamp:"
 				+ std::to_string(eob));});
 
+	/*
 	dimListener.registerRunningMergerListener([this](std::string mergers) {
 		if(mergers.empty()) {
 			myConnector_->sendCommand(
 					"RunningMergers:"+mergers);
 		}
 	});
+	*/
 }
 
 FarmStarter::~FarmStarter() {
@@ -69,7 +71,7 @@ FarmStarter::~FarmStarter() {
 
 void FarmStarter::test() {
 	myConnector_->sendCommand(
-			"RunningMergers:" + dimListener.getRunningMergers());
+			"RunningMergers:" + dimListener.getBurstNumber());
 }
 
 std::vector<std::string> FarmStarter::generateStartParameters() {
@@ -91,9 +93,16 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 						+ std::to_string(dimListener.getNextBurstNumber()));
 
 		std::string mergerList;
-		//uint trials=0;
-		uint max_trials=20;
-		mergerList = dimListener.getRunningMergers();
+		if (enabledMergerNodes_.getSize() <= 0) {
+			LOG_ERROR("Unable to connect to EnabledMergers service. Unable to start!");
+		} else {
+			if (enabledMergerNodes_.getString()[0] == (char) 0xFFFFFFFF) {
+				LOG_ERROR("EnabledMergerNodes is empty. Starting the pc-farm will fail!");
+			} else {
+				char* str = enabledMergerNodes_.getString();
+				mergerList = std::string(str, enabledMergerNodes_.getSize());
+			}
+		}
 		boost::replace_all(mergerList, ";", ",");
 		argv.push_back("--mergerHostNames=" + mergerList);
 
@@ -191,7 +200,7 @@ void FarmStarter::restartFarm() {
 	killFarm();
 	try {
 		killFarm();
-		sleep(1);
+		sleep(3);
 		startFarm(generateStartParameters());
 	} catch (NA62Error const& e) {
 		LOG_ERROR( e.what());
@@ -199,7 +208,7 @@ void FarmStarter::restartFarm() {
 }
 
 void FarmStarter::startFarm(std::vector<std::string> params) {
-	LOG_INFO("Starting farm with following parameters: ");
+	LOG_INFO("Starting process with following parameters: ");
 	for (std::string param : params) {
 		LOG_INFO(param);
 	}
@@ -210,7 +219,7 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 
 	if (farmPID_ > 0) {
 		killFarm();
-		sleep(3);
+		//sleep(3);
 	}
 
 	farmPID_ = fork();
@@ -249,6 +258,7 @@ void FarmStarter::killFarm() {
 //		wait((int*) NULL);
 //		waitpid(farmPID_, 0,WNOHANG);
 	}
+	sleep(1);
 	system(std::string("killall -9 " + execPath.filename().string()).data());
 	farmPID_ = 0;
 	myConnector_->sendState(OFF);

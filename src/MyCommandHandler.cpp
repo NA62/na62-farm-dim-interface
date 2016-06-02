@@ -32,7 +32,7 @@ void MyCommandHandler::commandHandler() {
 		LOG_INFO("Stop received");
 		farmStarter_.killFarm();
 	} else if (message == "test") {
-		LOG_INFO("Updatemergers received");
+		LOG_INFO("Test received");
 		farmStarter_.test();
 	} else {
 		LOG_INFO( "Sending command: " + message);
