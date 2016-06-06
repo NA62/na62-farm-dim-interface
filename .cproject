@@ -300,6 +300,7 @@
 								</option>
 								<option id="gnu.cpp.link.option.paths.711159024" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/na62-farm-lib-networking/Debug_ERS}&quot;"/>
+									<listOptionValue builtIn="false" value="/mnt/sw/LCG/ers/x86_64-slc6-gcc49-opt/lib/"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/na62-farm-lib/Debug_ERS}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.945565093" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
@@ -363,6 +364,12 @@
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.976168838.951390012;cdt.managedbuild.config.gnu.exe.debug.976168838.951390012.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1296696634;cdt.managedbuild.tool.gnu.cpp.compiler.input.90897237">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.976168838.951390012;cdt.managedbuild.config.gnu.exe.debug.976168838.951390012.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1195634490;cdt.managedbuild.tool.gnu.c.compiler.input.44219826">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.976168838;cdt.managedbuild.config.gnu.exe.debug.976168838.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.766633024;cdt.managedbuild.tool.gnu.cpp.compiler.input.84491843">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
