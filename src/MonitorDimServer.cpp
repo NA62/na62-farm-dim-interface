@@ -15,7 +15,7 @@ namespace dim {
 MonitorDimServer::MonitorDimServer(
 		MessageQueueConnector_ptr messageQueueConnector, std::string hostName,
 		FarmStarter& farmStarter, std::string inIpAddress) :
-		hostName_(hostName), cmdh(hostName, messageQueueConnector, farmStarter), initialState_(
+		hostName_(hostName), cmdh_(hostName, messageQueueConnector, farmStarter), initialState_(
 				OFF), stateService_(std::string(hostName + "/State").data(),
 				initialState_), inIpAddressService_(
 				std::string(hostName + "/InIpAddress").data(),

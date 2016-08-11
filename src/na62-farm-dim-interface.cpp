@@ -22,6 +22,7 @@
 #include "MonitorDimServer.h"
 #include "MessageQueueConnector.h"
 #include "FarmStarter.h"
+#include "utils/AExecutable.h"
 
 using namespace na62::dim;
 
@@ -62,6 +63,7 @@ int main(int argc, char* argv[]) {
 	std::string myIP = inet_ntoa(*address);
 
 	FarmStarter starter(myConnector);
+	starter.startThread("ProcessorsMonitoring");
 
 	na62::dim::MonitorDimServer_ptr dimServer_(
 			new MonitorDimServer(myConnector, std::string(hostName), starter,
@@ -69,6 +71,7 @@ int main(int argc, char* argv[]) {
 	myConnector->setDimServer(dimServer_);
 
 	myConnector->run();
+	na62::AExecutable::JoinAll();
 
 	return 0;
 }

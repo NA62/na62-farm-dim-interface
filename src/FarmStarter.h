@@ -14,13 +14,14 @@
 #include <vector>
 #include <string>
 #include <dim/DimListener.h>
+#include "utils/AExecutable.h"
 
 #include "MessageQueueConnector.h"
 
 namespace na62 {
 namespace dim {
 
-class FarmStarter: public DimClient {
+class FarmStarter: public DimClient, public AExecutable {
 public:
 	FarmStarter(MessageQueueConnector_ptr myConnector);
 	virtual ~FarmStarter();
@@ -32,6 +33,8 @@ public:
 private:
 	std::vector<std::string> generateStartParameters();
 	void startFarm(std::vector<std::string> param);
+
+	virtual void thread() override;
 
 	void infoHandler();
 	std::string myIP_;

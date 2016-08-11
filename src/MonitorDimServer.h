@@ -31,7 +31,7 @@ class MonitorDimServer: public boost::enable_shared_from_this<MonitorDimServer>,
 		private boost::noncopyable {
 private:
 	const std::string hostName_;
-	MyCommandHandler cmdh;
+	MyCommandHandler cmdh_;
 
 	int initialState_;
 	DimService stateService_;

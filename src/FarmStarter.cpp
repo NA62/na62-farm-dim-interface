@@ -65,6 +65,13 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 	*/
 }
 
+void FarmStarter::thread() {
+	std::cout<<"Im alive "<<std::endl;
+
+
+}
+
+
 FarmStarter::~FarmStarter() {
 	// TODO Auto-generated destructor stub
 }
