@@ -22,6 +22,7 @@
 #define OPTION_MULTI_STAT_SERVICES (char*)"multiStatServices"
 #define OPTION_LONGLONG_SERVICES (char*)"singlelongServices"
 #define OPTION_IS_MERGER (char*)"isMerger"
+#define OPTION_IS_SHARED_MEMORY (char*)"isSharedMemory"
 
 /*
  * Performance
@@ -56,7 +57,8 @@ public:
 
 		( OPTION_IS_MERGER, po::value<bool>()->required(),
 				"Set 1 if this is the dim connector for a merger and 0 if it is running on a farm PC.")
-
+		( OPTION_IS_SHARED_MEMORY, po::value<bool>()->default_value(0),
+				"Set 1 to run start the trigger processor.")
 				;
 
 		Options::Initialize(argc, argv, desc);
