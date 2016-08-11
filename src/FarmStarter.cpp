@@ -7,7 +7,7 @@
 
 #include "FarmStarter.h"
 
-#include <boost/filesystem.hpp>
+
 #include <boost/algorithm/string.hpp>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -203,6 +203,7 @@ void FarmStarter::startFarm() {
 	}
 }
 
+
 void FarmStarter::restartFarm() {
 	killFarm();
 	try {
@@ -213,9 +214,24 @@ void FarmStarter::restartFarm() {
 		LOG_ERROR( e.what());
 	}
 }
+//void FarmStarter::startProcessor(std::vector<std::string> params) {
+//	boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
+//	for (int i = 0; i < 5; i++) {
+//		LOG_INFO ("Starting trigger processor " << execPath.string());
+//		int child_pid = fork();
+//		if (child_pid == 0) {
+//			std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
+//			execv(exec_path.string().data(), argv);
+//			std::cout<<"Error child not started!!"<<std::endl;
+//			exit(0);
+//		}
+//		processorsPID_.push_back(child_pid);
+//	}
+//
+//}
 
 void FarmStarter::startFarm(std::vector<std::string> params) {
-	LOG_INFO("Starting process with following parameters: ");
+	LOG_INFO("Starting farm process with following parameters: ");
 	for (std::string param : params) {
 		LOG_INFO(param);
 	}
@@ -231,20 +247,11 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 
 	farmPID_ = fork();
 	if (farmPID_ == 0) {
-		boost::filesystem::path execPath(
-				Options::GetString(OPTION_FARM_EXEC_PATH));
+		boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
 
 		LOG_INFO ("Starting farm program " << execPath.string());
+		launchExecutable(execPath, params);
 
-		char* argv[params.size() + 2];
-		argv[0] = (char*) execPath.filename().string().data();
-
-		for (unsigned int i = 0; i < params.size(); i++) {
-			argv[i + 1] = (char*) params[i].data();
-		}
-		argv[params.size() + 1] = NULL;
-
-		execv(execPath.string().data(), argv);
 		LOG_INFO("Main farm program stopped!");
 		farmPID_ = -1;
 
@@ -253,6 +260,21 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 		LOG_ERROR("Forking failed! Unable to start the farm program!");
 	}
 //myConnector_->sendState(OFF);
+}
+
+int FarmStarter::launchExecutable(boost::filesystem::path & execPath, std::vector<std::string>& params) {
+	return execv(execPath.string().data(), generateArgv(execPath, params));
+}
+
+char ** FarmStarter::generateArgv(boost::filesystem::path & execPath, std::vector<std::string>& params) {
+	char* argv[params.size() + 2];
+	argv[0] = (char*) execPath.filename().string().data();
+
+	for (unsigned int i = 0; i < params.size(); i++) {
+		argv[i + 1] = (char*) params[i].data();
+	}
+	argv[params.size() + 1] = NULL;
+	return argv;
 }
 
 void FarmStarter::killFarm() {

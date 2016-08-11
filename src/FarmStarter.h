@@ -15,6 +15,7 @@
 #include <string>
 #include <dim/DimListener.h>
 #include "utils/AExecutable.h"
+#include <boost/filesystem.hpp>
 
 #include "MessageQueueConnector.h"
 
@@ -36,6 +37,9 @@ private:
 
 	virtual void thread() override;
 
+	int launchExecutable(boost::filesystem::path & execPath, std::vector<std::string>& params);
+	char ** generateArgv(boost::filesystem::path& execPath, std::vector<std::string>& params);
+
 	void infoHandler();
 	std::string myIP_;
 	DimInfo availableSourceIDs_;
@@ -45,6 +49,7 @@ private:
 	DimInfo enabledMergerNodes_;
 	DimInfo additionalOptions_;
 	pid_t farmPID_;
+	std::vector<pid_t> processorsPID_;
 	MessageQueueConnector_ptr myConnector_;
 
 	DimListener dimListener;
