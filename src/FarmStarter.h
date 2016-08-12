@@ -34,11 +34,12 @@ public:
 private:
 	std::vector<std::string> generateStartParameters();
 	void startFarm(std::vector<std::string> param);
+	void startProcessor(std::vector<std::string> params);
 
 	virtual void thread() override;
 
-	int launchExecutable(boost::filesystem::path & execPath, std::vector<std::string>& params);
-	char ** generateArgv(boost::filesystem::path& execPath, std::vector<std::string>& params);
+	int launchExecutable(boost::filesystem::path  execPath, std::vector<std::string> params);
+	char ** generateArgv(boost::filesystem::path execPath, std::vector<std::string> params);
 
 	void infoHandler();
 	std::string myIP_;

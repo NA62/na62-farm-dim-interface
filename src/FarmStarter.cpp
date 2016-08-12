@@ -66,8 +66,23 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 }
 
 void FarmStarter::thread() {
-	std::cout<<"Im alive "<<std::endl;
 
+
+	   while (true) {
+		   std::cout<<"Processor List: "<<std::endl;
+	        for (auto &processor_pid : processorsPID_) {
+	            if (! kill(processor_pid, 0)) {
+	                std::cout<<processor_pid<<" still alive"<<std::endl;
+	            } else {
+	                std::cout<<processor_pid<<"       dead"<<std::endl;
+	            }
+	        }
+			/*
+			 * Allow other threads to run
+			 */
+			boost::this_thread::sleep(boost::posix_time::microsec(100));
+			sleep(5);
+	    }
 
 }
 
@@ -77,6 +92,7 @@ FarmStarter::~FarmStarter() {
 }
 
 void FarmStarter::test() {
+	startProcessor(generateStartParameters());
 	myConnector_->sendCommand(
 			"RunningMergers:" + dimListener.getBurstNumber());
 }
@@ -214,23 +230,24 @@ void FarmStarter::restartFarm() {
 		LOG_ERROR( e.what());
 	}
 }
-//void FarmStarter::startProcessor(std::vector<std::string> params) {
-//	boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
-//	for (int i = 0; i < 5; i++) {
-//		LOG_INFO ("Starting trigger processor " << execPath.string());
-//		int child_pid = fork();
-//		if (child_pid == 0) {
-//			std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
-//			execv(exec_path.string().data(), argv);
-//			std::cout<<"Error child not started!!"<<std::endl;
-//			exit(0);
-//		}
-//		processorsPID_.push_back(child_pid);
-//	}
-//
-//}
+void FarmStarter::startProcessor(std::vector<std::string> params) {
+	boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
+	for (int i = 0; i < 5; i++) {
+		LOG_INFO ("Starting trigger processor " << exec_path.string());
+		int child_pid = fork();
+		if (child_pid == 0) {
+			std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
+			launchExecutable(exec_path, params);
+			std::cout<<"Error child not started!!"<<std::endl;
+			exit(0);
+		}
+		processorsPID_.push_back(child_pid);
+	}
+
+}
 
 void FarmStarter::startFarm(std::vector<std::string> params) {
+	signal(SIGCHLD, SIG_IGN);
 	LOG_INFO("Starting farm process with following parameters: ");
 	for (std::string param : params) {
 		LOG_INFO(param);
@@ -262,11 +279,21 @@ void FarmStarter::startFarm(std::vector<std::string> params) {
 //myConnector_->sendState(OFF);
 }
 
-int FarmStarter::launchExecutable(boost::filesystem::path & execPath, std::vector<std::string>& params) {
-	return execv(execPath.string().data(), generateArgv(execPath, params));
+int FarmStarter::launchExecutable(boost::filesystem::path execPath, std::vector<std::string> params) {
+
+	char* argv[params.size() + 2];
+	argv[0] = (char*) execPath.filename().string().data();
+
+	for (unsigned int i = 0; i < params.size(); i++) {
+		argv[i + 1] = (char*) params[i].data();
+	}
+	argv[params.size() + 1] = NULL;
+
+
+	return execv(execPath.string().data(), argv);
 }
 
-char ** FarmStarter::generateArgv(boost::filesystem::path & execPath, std::vector<std::string>& params) {
+char ** FarmStarter::generateArgv(boost::filesystem::path execPath, std::vector<std::string> params) {
 	char* argv[params.size() + 2];
 	argv[0] = (char*) execPath.filename().string().data();
 
