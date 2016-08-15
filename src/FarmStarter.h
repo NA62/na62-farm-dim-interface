@@ -53,12 +53,17 @@ public:
 	std::vector<std::string> generateStartParameters();
 private:
 
-	void startFarm(std::vector<std::string> param);
+	void startFarm(std::string path, std::vector<std::string> param);
+	void startSharedMemoryFarm(std::vector<std::string> params);
 	void startProcessor(std::vector<std::string> params);
+	void killFarm(std::string path);
+	void killSharedMemoryFarm();
+	void killProcessors();
 
 
 	int launchExecutable(boost::filesystem::path  execPath, std::vector<std::string> params);
 	char ** generateArgv(boost::filesystem::path execPath, std::vector<std::string> params);
+
 
 	void infoHandler();
 	std::string myIP_;

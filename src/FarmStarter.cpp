@@ -63,6 +63,7 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 		}
 	});
 	*/
+	signal(SIGCHLD, SIG_IGN);
 }
 
 FarmStarter::~FarmStarter() {
@@ -76,6 +77,172 @@ void FarmStarter::test() {
 
 	myConnector_->sendCommand(
 			"RunningMergers:" + dimListener.getBurstNumber());
+}
+
+void FarmStarter::startFarm() {
+	try {
+		if (Options::GetBool(OPTION_IS_SHARED_MEMORY)) {
+			startSharedMemoryFarm(generateStartParameters());
+		} else {
+			startFarm(Options::GetString(OPTION_FARM_EXEC_PATH), generateStartParameters());
+		}
+
+	} catch (NA62Error const& e) {
+		LOG_ERROR( e.what());
+	}
+}
+
+void FarmStarter::restartFarm() {
+	killFarm();
+	try {
+		killFarm();
+		sleep(3);
+		startFarm();
+	} catch (NA62Error const& e) {
+		LOG_ERROR( e.what());
+	}
+}
+void FarmStarter::startProcessors( int amount) {
+	std::cout<<"Starting processors!!"<<std::endl;
+	for (int i = 0; i < amount; i++) {
+		startProcessor(generateStartParameters());
+	}
+}
+
+void FarmStarter::startProcessor(std::vector<std::string> params) {
+	boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
+	LOG_INFO ("Starting trigger processor " << exec_path.string());
+	signal(SIGCHLD, SIG_IGN);
+
+	pid_t child_pid = fork();
+	if (child_pid == 0) {
+		std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
+		if (launchExecutable(exec_path, params) < 0) {
+			LOG_INFO ("Error starting the new process" << exec_path.string());
+		}
+		std::cout<<"Error child not started!!"<<std::endl;
+		exit(0);
+	}
+	//Let's say critical
+	mtx.lock(); //Static variable can be modifiable from DIM Server and the monitor Thread
+	processorsPID_.push_back(child_pid);
+	mtx.unlock();
+
+}
+
+
+void FarmStarter::startFarm(std::string path, std::vector<std::string> params) {
+
+	LOG_INFO("Starting farm process with following parameters: ");
+	for (std::string param : params) {
+		LOG_INFO(param);
+	}
+
+	if (Options::GetBool(OPTION_IS_MERGER)) {
+		sleep(1);
+	}
+
+	if (farmPID_ > 0) {
+		killFarm();
+		//sleep(3);
+	}
+
+	farmPID_ = fork();
+	if (farmPID_ == 0) {
+		//boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
+		boost::filesystem::path execPath(path);
+		LOG_INFO ("Starting farm program " << execPath.string());
+		launchExecutable(execPath, params);
+
+		LOG_INFO("Main farm program stopped!");
+		farmPID_ = -1;
+
+		exit(0);
+	} else if (farmPID_ == -1) {
+		LOG_ERROR("Forking failed! Unable to start the farm program!");
+	}
+//myConnector_->sendState(OFF);
+}
+
+void FarmStarter::startSharedMemoryFarm(std::vector<std::string> params) {
+	//signal(SIGCHLD, SIG_IGN);
+
+	//Clean memory
+	launchExecutable("/performance/user/marco/workspace/fork/clean", params);
+	//Start one processor
+	startProcessor(params);
+	//Start farm
+	startFarm("/performance/user/marco/workspace/fork/farm", params);
+
+	startProcessors(processorAmount_ - 1);
+	monitoringStatus_ = 1;
+
+}
+
+void FarmStarter::killFarm() {
+
+	if (Options::GetBool(OPTION_IS_SHARED_MEMORY)) {
+		killSharedMemoryFarm();
+	} else {
+		killFarm(Options::GetString(OPTION_FARM_EXEC_PATH));
+	}
+}
+
+void FarmStarter::killFarm(std::string exec_path) {
+	//boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
+	boost::filesystem::path execPath(exec_path);
+	LOG_INFO("Killing " + exec_path);
+
+	//signal(SIGCHLD, SIG_IGN);
+	if (farmPID_ > 0) {
+		kill(farmPID_, SIGTERM);
+//		wait((int*) NULL);
+//		waitpid(farmPID_, 0,WNOHANG);
+	}
+	sleep(1);
+	system(std::string("killall -9 " + execPath.filename().string()).data());
+	farmPID_ = 0;
+	myConnector_->sendState(OFF);
+}
+
+void FarmStarter::killSharedMemoryFarm(){
+	killFarm("/performance/user/marco/workspace/fork/farm");
+	monitoringStatus_ = 0;
+	killProcessors();
+
+}
+
+void FarmStarter::killProcessors() {
+	std::string path("/performance/user/marco/workspace/fork/child");
+	boost::filesystem::path execPath(path);
+	LOG_INFO("Killing " + path);
+
+	system(std::string("killall -9 " + execPath.filename().string()).data());
+}
+
+int FarmStarter::launchExecutable(boost::filesystem::path execPath, std::vector<std::string> params) {
+
+	char* argv[params.size() + 2];
+	argv[0] = (char*) execPath.filename().string().data();
+
+	for (unsigned int i = 0; i < params.size(); i++) {
+		argv[i + 1] = (char*) params[i].data();
+	}
+	argv[params.size() + 1] = NULL;
+
+
+	return execv(execPath.string().data(), argv);
+}
+
+char ** FarmStarter::generateArgv(boost::filesystem::path execPath, std::vector<std::string> params) {
+	char* argv[params.size() + 2];
+	argv[0] = (char*) execPath.filename().string().data();
+
+	for (unsigned int i = 0; i < params.size(); i++) {
+		argv[i + 1] = (char*) params[i].data();
+	}
+	argv[params.size() + 1] = NULL;
+	return argv;
 }
 
 std::vector<std::string> FarmStarter::generateStartParameters() {
@@ -190,128 +357,6 @@ std::vector<std::string> FarmStarter::generateStartParameters() {
 }
 
 void FarmStarter::infoHandler() {
-}
-
-void FarmStarter::startFarm() {
-	try {
-		startFarm(generateStartParameters());
-
-	} catch (NA62Error const& e) {
-		LOG_ERROR( e.what());
-	}
-}
-
-void FarmStarter::restartFarm() {
-	killFarm();
-	try {
-		killFarm();
-		sleep(3);
-		startFarm(generateStartParameters());
-	} catch (NA62Error const& e) {
-		LOG_ERROR( e.what());
-	}
-}
-void FarmStarter::startProcessors( int amount) {
-	std::cout<<"Starting processors!!"<<std::endl;
-	for (int i = 0; i < amount; i++) {
-		startProcessor(generateStartParameters());
-	}
-}
-
-void FarmStarter::startProcessor(std::vector<std::string> params) {
-	boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
-	LOG_INFO ("Starting trigger processor " << exec_path.string());
-	signal(SIGCHLD, SIG_IGN);
-
-	pid_t child_pid = fork();
-	if (child_pid == 0) {
-		std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
-		if (launchExecutable(exec_path, params) < 0) {
-			LOG_INFO ("Error starting the new process" << exec_path.string());
-		}
-		std::cout<<"Error child not started!!"<<std::endl;
-		exit(0);
-	}
-	//Let's say critical
-	mtx.lock(); //Static variable can be modifiable from DIM Server and the monitor Thread
-	processorsPID_.push_back(child_pid);
-	mtx.unlock();
-
-}
-
-
-void FarmStarter::startFarm(std::vector<std::string> params) {
-	signal(SIGCHLD, SIG_IGN);
-	LOG_INFO("Starting farm process with following parameters: ");
-	for (std::string param : params) {
-		LOG_INFO(param);
-	}
-
-	if (Options::GetBool(OPTION_IS_MERGER)) {
-		sleep(1);
-	}
-
-	if (farmPID_ > 0) {
-		killFarm();
-		//sleep(3);
-	}
-
-	farmPID_ = fork();
-	if (farmPID_ == 0) {
-		boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
-
-		LOG_INFO ("Starting farm program " << execPath.string());
-		launchExecutable(execPath, params);
-
-		LOG_INFO("Main farm program stopped!");
-		farmPID_ = -1;
-
-		exit(0);
-	} else if (farmPID_ == -1) {
-		LOG_ERROR("Forking failed! Unable to start the farm program!");
-	}
-//myConnector_->sendState(OFF);
-}
-
-int FarmStarter::launchExecutable(boost::filesystem::path execPath, std::vector<std::string> params) {
-
-	char* argv[params.size() + 2];
-	argv[0] = (char*) execPath.filename().string().data();
-
-	for (unsigned int i = 0; i < params.size(); i++) {
-		argv[i + 1] = (char*) params[i].data();
-	}
-	argv[params.size() + 1] = NULL;
-
-
-	return execv(execPath.string().data(), argv);
-}
-
-char ** FarmStarter::generateArgv(boost::filesystem::path execPath, std::vector<std::string> params) {
-	char* argv[params.size() + 2];
-	argv[0] = (char*) execPath.filename().string().data();
-
-	for (unsigned int i = 0; i < params.size(); i++) {
-		argv[i + 1] = (char*) params[i].data();
-	}
-	argv[params.size() + 1] = NULL;
-	return argv;
-}
-
-void FarmStarter::killFarm() {
-	boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
-	LOG_INFO("Killing " + Options::GetString(OPTION_FARM_EXEC_PATH));
-
-	signal(SIGCHLD, SIG_IGN);
-	if (farmPID_ > 0) {
-		kill(farmPID_, SIGTERM);
-//		wait((int*) NULL);
-//		waitpid(farmPID_, 0,WNOHANG);
-	}
-	sleep(1);
-	system(std::string("killall -9 " + execPath.filename().string()).data());
-	farmPID_ = 0;
-	myConnector_->sendState(OFF);
 }
 } /* namespace dim */
 } /* namespace na62 */
