@@ -7,7 +7,6 @@
 
 #include "FarmStarter.h"
 
-
 #include <boost/algorithm/string.hpp>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -23,6 +22,7 @@
 
 namespace na62 {
 namespace dim {
+
 
 FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), availableL1SourceIDs_("RunControl/L1EnabledDetectors", -1, this),
@@ -65,26 +65,7 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 	*/
 }
 
-void FarmStarter::thread() {
 
-
-	   while (true) {
-		   std::cout<<"Processor List: "<<std::endl;
-	        for (auto &processor_pid : processorsPID_) {
-	            if (! kill(processor_pid, 0)) {
-	                std::cout<<processor_pid<<" still alive"<<std::endl;
-	            } else {
-	                std::cout<<processor_pid<<"       dead"<<std::endl;
-	            }
-	        }
-			/*
-			 * Allow other threads to run
-			 */
-			boost::this_thread::sleep(boost::posix_time::microsec(100));
-			sleep(5);
-	    }
-
-}
 
 
 FarmStarter::~FarmStarter() {
@@ -92,7 +73,7 @@ FarmStarter::~FarmStarter() {
 }
 
 void FarmStarter::test() {
-	startProcessor(generateStartParameters());
+	startProcessors(processorAmount_);
 	myConnector_->sendCommand(
 			"RunningMergers:" + dimListener.getBurstNumber());
 }
@@ -219,7 +200,6 @@ void FarmStarter::startFarm() {
 	}
 }
 
-
 void FarmStarter::restartFarm() {
 	killFarm();
 	try {
@@ -230,21 +210,33 @@ void FarmStarter::restartFarm() {
 		LOG_ERROR( e.what());
 	}
 }
+void FarmStarter::startProcessors( int amount) {
+	std::cout<<"Starting processors!!"<<std::endl;
+	for (int i = 0; i < amount; i++) {
+		startProcessor(generateStartParameters());
+	}
+}
+
+
 void FarmStarter::startProcessor(std::vector<std::string> params) {
 	boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
-	for (int i = 0; i < 5; i++) {
-		LOG_INFO ("Starting trigger processor " << exec_path.string());
-		int child_pid = fork();
-		if (child_pid == 0) {
-			std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
-			launchExecutable(exec_path, params);
-			std::cout<<"Error child not started!!"<<std::endl;
-			exit(0);
+	LOG_INFO ("Starting trigger processor " << exec_path.string());
+	int child_pid = fork();
+	if (child_pid == 0) {
+		std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
+		if (launchExecutable(exec_path, params) < 0) {
+			LOG_INFO ("Error starting the new process" << exec_path.string());
 		}
-		processorsPID_.push_back(child_pid);
+		std::cout<<"Error child not started!!"<<std::endl;
+		exit(0);
 	}
+	//Let's say critical
+	mtx.lock(); //Static variable can be modifiable from DIM Server and the monitor Thread
+	processorsPID_.push_back(child_pid);
+	mtx.unlock();
 
 }
+
 
 void FarmStarter::startFarm(std::vector<std::string> params) {
 	signal(SIGCHLD, SIG_IGN);

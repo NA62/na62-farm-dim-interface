@@ -14,15 +14,15 @@
 #include <vector>
 #include <string>
 #include <dim/DimListener.h>
-#include "utils/AExecutable.h"
 #include <boost/filesystem.hpp>
+#include <mutex>
 
 #include "MessageQueueConnector.h"
 
 namespace na62 {
 namespace dim {
 
-class FarmStarter: public DimClient, public AExecutable {
+class FarmStarter: public DimClient {
 public:
 	FarmStarter(MessageQueueConnector_ptr myConnector);
 	virtual ~FarmStarter();
@@ -31,12 +31,21 @@ public:
 	void killFarm();
 	void test();
 
+	void startProcessors(int amount);
+
+	std::vector<pid_t> inline  getProcessorPID(){
+		return processorsPID_;
+	}
+
+	int inline getProcessorAmount() {
+		return processorAmount_;
+	}
+
 private:
 	std::vector<std::string> generateStartParameters();
 	void startFarm(std::vector<std::string> param);
 	void startProcessor(std::vector<std::string> params);
 
-	virtual void thread() override;
 
 	int launchExecutable(boost::filesystem::path  execPath, std::vector<std::string> params);
 	char ** generateArgv(boost::filesystem::path execPath, std::vector<std::string> params);
@@ -50,8 +59,12 @@ private:
 	DimInfo enabledMergerNodes_;
 	DimInfo additionalOptions_;
 	pid_t farmPID_;
-	std::vector<pid_t> processorsPID_;
+
 	MessageQueueConnector_ptr myConnector_;
+
+	std::mutex mtx;
+	int processorAmount_ = 5;
+	std::vector<pid_t> processorsPID_;
 
 	DimListener dimListener;
 };

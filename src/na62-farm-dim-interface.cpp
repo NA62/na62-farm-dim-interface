@@ -22,9 +22,55 @@
 #include "MonitorDimServer.h"
 #include "MessageQueueConnector.h"
 #include "FarmStarter.h"
-#include "utils/AExecutable.h"
+#include <thread>
 
 using namespace na62::dim;
+
+void processorMonitor(FarmStarter *starter) {
+
+	while (true) {
+		std::cout<<"Processor List: "<<std::endl;
+		int count_alive = 0;
+		for (auto &processor_pid : starter->getProcessorPID()) {
+			if (!kill(processor_pid, 0)) {
+				std::cout<<processor_pid<<" still alive"<<std::endl;
+				++count_alive;
+			} else {
+				std::cout<<processor_pid<<"       dead"<<std::endl;
+			}
+		}
+		std::cout<<"Starting a child List: "<<std::endl;
+		//starter->startProcessors(1);
+		//starter->startProcessors(starter->getProcessorAmount() - count_alive);
+
+		boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
+		LOG_INFO ("Starting trigger processor " << exec_path.string());
+		int child_pid = fork();
+		if (child_pid == 0) {
+			std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
+
+			char* argv[ 2];
+			argv[0] = (char*) exec_path.filename().string().data();
+
+
+			argv[1] = NULL;
+
+			if (execv(exec_path.string().data(), argv) < 0) {
+				LOG_INFO ("Error starting the new process" << exec_path.string());
+			}
+			std::cout<<"Error child not started!!"<<std::endl;
+			exit(0);
+		}
+
+		/*
+		* Allow other threads to run
+		*/
+		boost::this_thread::sleep(boost::posix_time::microsec(100));
+		sleep(5);
+	}
+}
+
+
 
 int main(int argc, char* argv[]) {
 	/*
@@ -62,16 +108,20 @@ int main(int argc, char* argv[]) {
 	in_addr * address = (in_addr *) record->h_addr;
 	std::string myIP = inet_ntoa(*address);
 
+	//Dim server that receive commands
 	FarmStarter starter(myConnector);
-	starter.startThread("ProcessorsMonitoring");
+
 
 	na62::dim::MonitorDimServer_ptr dimServer_(
 			new MonitorDimServer(myConnector, std::string(hostName), starter,
 					myIP));
 	myConnector->setDimServer(dimServer_);
 
+	std::thread processor_monitor(processorMonitor, &starter);
+	processor_monitor.detach();
+
 	myConnector->run();
-	na62::AExecutable::JoinAll();
+
 
 	return 0;
 }
