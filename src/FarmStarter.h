@@ -22,7 +22,9 @@
 namespace na62 {
 namespace dim {
 
-class FarmStarter: public DimClient {
+
+
+class FarmStarter : public DimClient {
 public:
 	FarmStarter(MessageQueueConnector_ptr myConnector);
 	virtual ~FarmStarter();
@@ -40,9 +42,17 @@ public:
 	int inline getProcessorAmount() {
 		return processorAmount_;
 	}
-
-private:
+	void inline pushPID(pid_t child_pid) {
+		mtx.lock(); //Static variable can be modifiable from DIM Server and the monitor Thread
+	processorsPID_.push_back(child_pid);
+		mtx.unlock();
+	}
+	bool inline getMonitoringStatus() {
+		return monitoringStatus_;
+	}
 	std::vector<std::string> generateStartParameters();
+private:
+
 	void startFarm(std::vector<std::string> param);
 	void startProcessor(std::vector<std::string> params);
 
@@ -59,6 +69,7 @@ private:
 	DimInfo enabledMergerNodes_;
 	DimInfo additionalOptions_;
 	pid_t farmPID_;
+	bool monitoringStatus_ = 0; //1 enabled 0 disabled
 
 	MessageQueueConnector_ptr myConnector_;
 

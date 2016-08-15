@@ -28,7 +28,7 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), availableL1SourceIDs_("RunControl/L1EnabledDetectors", -1, this),
 				mepFactor_("RunControl/MEPFactor", -1, this),
 				enabledPCNodes_("RunControl/EnabledPCNodes", -1, this), enabledMergerNodes_("RunControl/EnabledMergers", -1, this),
-				additionalOptions_("RunControl/PCFarmOptions", -1, this), farmPID_(-1), myConnector_(myConnector) {
+				additionalOptions_("RunControl/	", -1, this), farmPID_(-1), myConnector_(myConnector) {
 
 	dimListener.registerNextBurstNumberListener([this](uint nextBurst) {
 		myConnector_->sendCommand(
@@ -65,15 +65,15 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 	*/
 }
 
-
-
-
 FarmStarter::~FarmStarter() {
 	// TODO Auto-generated destructor stub
 }
 
 void FarmStarter::test() {
+
 	startProcessors(processorAmount_);
+	monitoringStatus_ = 1;
+
 	myConnector_->sendCommand(
 			"RunningMergers:" + dimListener.getBurstNumber());
 }
@@ -195,6 +195,7 @@ void FarmStarter::infoHandler() {
 void FarmStarter::startFarm() {
 	try {
 		startFarm(generateStartParameters());
+
 	} catch (NA62Error const& e) {
 		LOG_ERROR( e.what());
 	}
@@ -217,11 +218,12 @@ void FarmStarter::startProcessors( int amount) {
 	}
 }
 
-
 void FarmStarter::startProcessor(std::vector<std::string> params) {
 	boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
 	LOG_INFO ("Starting trigger processor " << exec_path.string());
-	int child_pid = fork();
+	signal(SIGCHLD, SIG_IGN);
+
+	pid_t child_pid = fork();
 	if (child_pid == 0) {
 		std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
 		if (launchExecutable(exec_path, params) < 0) {

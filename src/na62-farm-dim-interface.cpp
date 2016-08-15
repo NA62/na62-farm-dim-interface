@@ -32,36 +32,47 @@ void processorMonitor(FarmStarter *starter) {
 		std::cout<<"Processor List: "<<std::endl;
 		int count_alive = 0;
 		for (auto &processor_pid : starter->getProcessorPID()) {
-			if (!kill(processor_pid, 0)) {
+			if (!kill( (int) processor_pid, 0)) {
 				std::cout<<processor_pid<<" still alive"<<std::endl;
 				++count_alive;
 			} else {
 				std::cout<<processor_pid<<"       dead"<<std::endl;
 			}
 		}
-		std::cout<<"Starting a child List: "<<std::endl;
-		//starter->startProcessors(1);
-		//starter->startProcessors(starter->getProcessorAmount() - count_alive);
-
-		boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
-		LOG_INFO ("Starting trigger processor " << exec_path.string());
-		int child_pid = fork();
-		if (child_pid == 0) {
-			std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
-
-			char* argv[ 2];
-			argv[0] = (char*) exec_path.filename().string().data();
 
 
-			argv[1] = NULL;
+		if (starter->getMonitoringStatus()) {
+			//starter->startProcessors(1);
+			//starter->startProcessors(starter->getProcessorAmount() - count_alive);
 
-			if (execv(exec_path.string().data(), argv) < 0) {
-				LOG_INFO ("Error starting the new process" << exec_path.string());
+			while (count_alive++ < starter->getProcessorAmount()) {
+				boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
+				std::vector<std::string> params = starter->generateStartParameters();
+				LOG_INFO ("Starting trigger processor " << exec_path.string());
+
+				signal(SIGCHLD, SIG_IGN);//don't want to wait for child process created
+
+				pid_t child_pid = fork();
+				if (child_pid == 0) {
+					std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
+
+					char* argv[params.size() + 2];
+					argv[0] = (char*) exec_path.filename().string().data();
+
+					for (unsigned int i = 0; i < params.size(); i++) {
+						argv[i + 1] = (char*) params[i].data();
+					}
+					argv[params.size() + 1] = NULL;
+
+					if (execv(exec_path.string().data(), argv) < 0) {
+						LOG_INFO ("Error starting the new process" << exec_path.string());
+					}
+					std::cout<<"Error child not started!!"<<std::endl;
+					exit(0);
+				}
+				starter->pushPID(child_pid);
 			}
-			std::cout<<"Error child not started!!"<<std::endl;
-			exit(0);
 		}
-
 		/*
 		* Allow other threads to run
 		*/
@@ -69,8 +80,6 @@ void processorMonitor(FarmStarter *starter) {
 		sleep(5);
 	}
 }
-
-
 
 int main(int argc, char* argv[]) {
 	/*
@@ -118,7 +127,7 @@ int main(int argc, char* argv[]) {
 	myConnector->setDimServer(dimServer_);
 
 	std::thread processor_monitor(processorMonitor, &starter);
-	processor_monitor.detach();
+	//processor_monitor.detach();
 
 	myConnector->run();
 
