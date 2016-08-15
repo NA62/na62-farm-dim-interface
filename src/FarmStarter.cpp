@@ -167,8 +167,10 @@ void FarmStarter::startFarm(std::string path, std::vector<std::string> params) {
 void FarmStarter::startSharedMemoryFarm(std::vector<std::string> params) {
 	//signal(SIGCHLD, SIG_IGN);
 
+	LOG_INFO("Starting Shared Memory farm: ");
 	//Clean memory
-	launchExecutable("/performance/user/marco/workspace/fork/clean", params);
+
+	startCleaner("/performance/user/marco/workspace/fork/clean", params);
 	//Start one processor
 	startProcessor(params);
 	//Start farm
@@ -178,7 +180,25 @@ void FarmStarter::startSharedMemoryFarm(std::vector<std::string> params) {
 	monitoringStatus_ = 1;
 
 }
+void FarmStarter::startCleaner(std::string path, std::vector<std::string> params) {
 
+	LOG_INFO("Starting Shard Memory cleaning : ");
+
+	farmPID_ = fork();
+	if (farmPID_ == 0) {
+		//boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
+		boost::filesystem::path execPath(path);
+		LOG_INFO ("Starting farm program " << execPath.string());
+		launchExecutable(execPath, params);
+
+		LOG_INFO("Main farm program stopped!");
+		farmPID_ = -1;
+
+		exit(0);
+	} else if (farmPID_ == -1) {
+		LOG_ERROR("Forking failed! Unable to start the farm program!");
+	}
+}
 void FarmStarter::killFarm() {
 
 	if (Options::GetBool(OPTION_IS_SHARED_MEMORY)) {
@@ -213,11 +233,22 @@ void FarmStarter::killSharedMemoryFarm(){
 }
 
 void FarmStarter::killProcessors() {
+
+	for (auto &processor_pid : processorsPID_) {
+		if (!kill( (int) processor_pid, 0)) {
+			std::cout<<"Killing: "<<processor_pid<<std::endl;
+			kill(processor_pid, SIGTERM);
+		} else {
+			std::cout<<processor_pid<<"       dead"<<std::endl;
+		}
+	}
+
 	std::string path("/performance/user/marco/workspace/fork/child");
 	boost::filesystem::path execPath(path);
 	LOG_INFO("Killing " + path);
-
+	sleep(1);
 	system(std::string("killall -9 " + execPath.filename().string()).data());
+
 }
 
 int FarmStarter::launchExecutable(boost::filesystem::path execPath, std::vector<std::string> params) {

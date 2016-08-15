@@ -56,6 +56,7 @@ private:
 	void startFarm(std::string path, std::vector<std::string> param);
 	void startSharedMemoryFarm(std::vector<std::string> params);
 	void startProcessor(std::vector<std::string> params);
+	void startCleaner(std::string path, std::vector<std::string> params);
 	void killFarm(std::string path);
 	void killSharedMemoryFarm();
 	void killProcessors();
