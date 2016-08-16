@@ -20,6 +20,9 @@
 #include "exceptions/NA62Error.h"
 #include "options/MyOptions.h"
 
+#include "SharedMemory/SharedMemoryManager.h"
+
+
 namespace na62 {
 namespace dim {
 
@@ -169,8 +172,9 @@ void FarmStarter::startSharedMemoryFarm(std::vector<std::string> params) {
 
 	LOG_INFO("Starting Shared Memory farm: ");
 	//Clean memory
+	na62::SharedMemoryManager::eraseAll();
 
-	startCleaner("/performance/user/marco/workspace/fork/clean", params);
+	sleep(1);
 	//Start one processor
 	startProcessor(params);
 	//Start farm
@@ -229,6 +233,9 @@ void FarmStarter::killSharedMemoryFarm(){
 	killFarm("/performance/user/marco/workspace/fork/farm");
 	monitoringStatus_ = 0;
 	killProcessors();
+	mtx.lock(); //Static variable can be modifiable from DIM Server and the monitor Thread
+	processorsPID_.clear();
+	mtx.unlock();
 
 }
 
