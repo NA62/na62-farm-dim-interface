@@ -44,19 +44,23 @@ public:
 	}
 	void inline pushPID(pid_t child_pid) {
 		mtx.lock(); //Static variable can be modifiable from DIM Server and the monitor Thread
-	processorsPID_.push_back(child_pid);
+		processorsPID_.push_back(child_pid);
 		mtx.unlock();
 	}
 	bool inline getMonitoringStatus() {
 		return monitoringStatus_;
 	}
+	std::string inline getSharedProcessorPath() {
+		return sharedProcessorPath_;
+	}
+
 	std::vector<std::string> generateStartParameters();
 private:
 
 	void startFarm(std::string path, std::vector<std::string> param);
 	void startSharedMemoryFarm(std::vector<std::string> params);
 	void startProcessor(std::vector<std::string> params);
-	void startCleaner(std::string path, std::vector<std::string> params);
+	//void startCleaner(std::string path, std::vector<std::string> params);
 	void killFarm(std::string path);
 	void killSharedMemoryFarm();
 	void killProcessors();
@@ -80,8 +84,10 @@ private:
 	MessageQueueConnector_ptr myConnector_;
 
 	std::mutex mtx;
-	int processorAmount_ = 5;
+	int processorAmount_ = 1;
 	std::vector<pid_t> processorsPID_;
+	std::string sharedFarmPath_ = "/performance/user/marco/workspace/na62-farm/Debug/na62-farm";
+	std::string sharedProcessorPath_ = "/performance/user/marco/workspace/na62-farm-packets/Trigger-processor/trigger-processor";
 
 	DimListener dimListener;
 };

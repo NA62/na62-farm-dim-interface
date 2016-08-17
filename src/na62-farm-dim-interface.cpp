@@ -46,7 +46,7 @@ void processorMonitor(FarmStarter *starter) {
 			//starter->startProcessors(starter->getProcessorAmount() - count_alive);
 
 			while (count_alive++ < starter->getProcessorAmount()) {
-				boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
+				boost::filesystem::path exec_path(starter->getSharedProcessorPath());
 				std::vector<std::string> params = starter->generateStartParameters();
 				LOG_INFO ("Starting trigger processor " << exec_path.string());
 

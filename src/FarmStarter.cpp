@@ -31,7 +31,7 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 		availableSourceIDs_("RunControl/EnabledDetectors", -1, this), availableL1SourceIDs_("RunControl/L1EnabledDetectors", -1, this),
 				mepFactor_("RunControl/MEPFactor", -1, this),
 				enabledPCNodes_("RunControl/EnabledPCNodes", -1, this), enabledMergerNodes_("RunControl/EnabledMergers", -1, this),
-				additionalOptions_("RunControl/	", -1, this), farmPID_(-1), myConnector_(myConnector) {
+				additionalOptions_("RunControl/PCFarmOptions", -1, this), farmPID_(-1), myConnector_(myConnector) {
 
 	dimListener.registerNextBurstNumberListener([this](uint nextBurst) {
 		myConnector_->sendCommand(
@@ -113,7 +113,7 @@ void FarmStarter::startProcessors( int amount) {
 }
 
 void FarmStarter::startProcessor(std::vector<std::string> params) {
-	boost::filesystem::path exec_path("/performance/user/marco/workspace/fork/child");
+	boost::filesystem::path exec_path(sharedProcessorPath_);
 	LOG_INFO ("Starting trigger processor " << exec_path.string());
 	signal(SIGCHLD, SIG_IGN);
 
@@ -130,9 +130,7 @@ void FarmStarter::startProcessor(std::vector<std::string> params) {
 	mtx.lock(); //Static variable can be modifiable from DIM Server and the monitor Thread
 	processorsPID_.push_back(child_pid);
 	mtx.unlock();
-
 }
-
 
 void FarmStarter::startFarm(std::string path, std::vector<std::string> params) {
 
@@ -154,7 +152,7 @@ void FarmStarter::startFarm(std::string path, std::vector<std::string> params) {
 	if (farmPID_ == 0) {
 		//boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
 		boost::filesystem::path execPath(path);
-		LOG_INFO ("Starting farm program " << execPath.string());
+		LOG_INFO ("Starting farm program: " << execPath.string());
 		launchExecutable(execPath, params);
 
 		LOG_INFO("Main farm program stopped!");
@@ -177,32 +175,36 @@ void FarmStarter::startSharedMemoryFarm(std::vector<std::string> params) {
 	sleep(1);
 	//Start one processor
 	startProcessor(params);
-	//Start farm
-	startFarm("/performance/user/marco/workspace/fork/farm", params);
 
-	startProcessors(processorAmount_ - 1);
+	sleep(1);
+	//Start farm
+	startFarm(sharedFarmPath_, params);
+
+	//startProcessors(processorAmount_ - 1);
 	monitoringStatus_ = 1;
 
 }
-void FarmStarter::startCleaner(std::string path, std::vector<std::string> params) {
 
-	LOG_INFO("Starting Shard Memory cleaning : ");
+//void FarmStarter::startCleaner(std::string path, std::vector<std::string> params) {
+//
+//	LOG_INFO("Starting Shard Memory cleaning : ");
+//
+//	farmPID_ = fork();
+//	if (farmPID_ == 0) {
+//		//boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
+//		boost::filesystem::path execPath(path);
+//		LOG_INFO ("Starting farm program " << execPath.string());
+//		launchExecutable(execPath, params);
+//
+//		LOG_INFO("Main farm program stopped!");
+//		farmPID_ = -1;
+//
+//		exit(0);
+//	} else if (farmPID_ == -1) {
+//		LOG_ERROR("Forking failed! Unable to start the farm program!");
+//	}
+//}
 
-	farmPID_ = fork();
-	if (farmPID_ == 0) {
-		//boost::filesystem::path execPath(Options::GetString(OPTION_FARM_EXEC_PATH));
-		boost::filesystem::path execPath(path);
-		LOG_INFO ("Starting farm program " << execPath.string());
-		launchExecutable(execPath, params);
-
-		LOG_INFO("Main farm program stopped!");
-		farmPID_ = -1;
-
-		exit(0);
-	} else if (farmPID_ == -1) {
-		LOG_ERROR("Forking failed! Unable to start the farm program!");
-	}
-}
 void FarmStarter::killFarm() {
 
 	if (Options::GetBool(OPTION_IS_SHARED_MEMORY)) {
@@ -230,7 +232,7 @@ void FarmStarter::killFarm(std::string exec_path) {
 }
 
 void FarmStarter::killSharedMemoryFarm(){
-	killFarm("/performance/user/marco/workspace/fork/farm");
+	killFarm(sharedFarmPath_);
 	monitoringStatus_ = 0;
 	killProcessors();
 	mtx.lock(); //Static variable can be modifiable from DIM Server and the monitor Thread
@@ -250,7 +252,7 @@ void FarmStarter::killProcessors() {
 		}
 	}
 
-	std::string path("/performance/user/marco/workspace/fork/child");
+	std::string path(sharedProcessorPath_);
 	boost::filesystem::path execPath(path);
 	LOG_INFO("Killing " + path);
 	sleep(1);
