@@ -17,6 +17,8 @@
  * Available options
  */
 #define OPTION_FARM_EXEC_PATH (char*)"farmExecPath"
+#define OPTION_SM_FARM_EXEC_PATH (char*)"smFarmExecPath"
+#define OPTION_TRIGGER_PROCESSOR_EXEC_PATH (char*)"triggerProcessorExecPath"
 #define OPTION_HEARTBEAT_TIMEOUT_MILLIS (char*)"hearbeatTimeoutMillis"
 
 #define OPTION_MULTI_STAT_SERVICES (char*)"multiStatServices"
@@ -42,22 +44,21 @@ public:
 		(OPTION_CONFIG_FILE,
 				po::value<std::string>()->default_value("/etc/na62-farm-dim.conf"),
 				"Config file for the options shown here")
-
 		(OPTION_FARM_EXEC_PATH, po::value<std::string>()->required(),
 				"Path to the executable farm program")
-
-		( OPTION_HEARTBEAT_TIMEOUT_MILLIS, po::value<int>()->required(),
+		(OPTION_SM_FARM_EXEC_PATH, po::value<std::string>()->required(),
+				"Path to the executable shared memory farm program")
+		(OPTION_SM_FARM_EXEC_PATH, po::value<std::string>()->required(),
+				"Path to the executable trigger processor")
+		(OPTION_HEARTBEAT_TIMEOUT_MILLIS, po::value<int>()->required(),
 				"Number of milliseconds that have to pass without receiving a heart beat from the farm program until we go into error mode.")
-
-		( OPTION_MULTI_STAT_SERVICES, po::value<std::string>()->required(),
+		(OPTION_MULTI_STAT_SERVICES, po::value<std::string>()->required(),
 				"Comma separated (S1,S2,S3...) list of services with multiple stats like \"A:a;B:b\"")
-
-		( OPTION_LONGLONG_SERVICES, po::value<std::string>()->required(),
+		(OPTION_LONGLONG_SERVICES, po::value<std::string>()->required(),
 				"Comma separated list (S1,S2,S3...) of services with single long values.")
-
-		( OPTION_IS_MERGER, po::value<bool>()->required(),
+		(OPTION_IS_MERGER, po::value<bool>()->required(),
 				"Set 1 if this is the dim connector for a merger and 0 if it is running on a farm PC.")
-		( OPTION_IS_SHARED_MEMORY, po::value<bool>()->default_value(0),
+		(OPTION_IS_SHARED_MEMORY, po::value<bool>()->default_value(0),
 				"Set 1 to run start the trigger processor.")
 				;
 

@@ -47,27 +47,27 @@ void processorMonitor(FarmStarter *starter) {
 
 			while (count_alive++ < starter->getProcessorAmount()) {
 				boost::filesystem::path exec_path(starter->getSharedProcessorPath());
-				std::vector<std::string> params = starter->generateStartParameters();
 				LOG_INFO ("Starting trigger processor " << exec_path.string());
+				std::vector<std::string> triggerProcessorParams = starter->generateStartParameters("trigger-processor");
 
 				signal(SIGCHLD, SIG_IGN);//don't want to wait for child process created
 
 				pid_t child_pid = fork();
 				if (child_pid == 0) {
-					std::cout<<"child: "<<child_pid<<" "<<getpid()<<std::endl;
+					LOG_INFO("Child: " << child_pid << " " << getpid());
 
-					char* argv[params.size() + 2];
+					char* argv[triggerProcessorParams.size() + 2];
 					argv[0] = (char*) exec_path.filename().string().data();
 
-					for (unsigned int i = 0; i < params.size(); i++) {
-						argv[i + 1] = (char*) params[i].data();
+					for (unsigned int i = 0; i < triggerProcessorParams.size(); i++) {
+						argv[i + 1] = (char*) triggerProcessorParams[i].data();
 					}
-					argv[params.size() + 1] = NULL;
+					argv[triggerProcessorParams.size() + 1] = NULL;
 
 					if (execv(exec_path.string().data(), argv) < 0) {
-						LOG_INFO ("Error starting the new process" << exec_path.string());
+						LOG_ERROR("Error starting the new process" << exec_path.string());
 					}
-					std::cout<<"Error child not started!!"<<std::endl;
+					LOG_ERROR("Error child not started!!");
 					exit(0);
 				}
 				starter->pushPID(child_pid);
@@ -130,7 +130,6 @@ int main(int argc, char* argv[]) {
 	//processor_monitor.detach();
 
 	myConnector->run();
-
 
 	return 0;
 }

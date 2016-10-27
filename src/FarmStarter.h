@@ -33,8 +33,6 @@ public:
 	void killFarm();
 	void test();
 
-	void startProcessors(int amount);
-
 	std::vector<pid_t> inline  getProcessorPID(){
 		return processorsPID_;
 	}
@@ -50,27 +48,19 @@ public:
 	bool inline getMonitoringStatus() {
 		return monitoringStatus_;
 	}
-	std::string inline getSharedProcessorPath() {
-		return sharedProcessorPath_;
-	}
-
-	std::vector<std::string> generateStartParameters();
+	std::string getSharedProcessorPath();
+	std::vector<std::string> generateStartParameters(std::string appName = "na62-farm");
 private:
-
 	void startFarm(std::string path, std::vector<std::string> param);
-	void startSharedMemoryFarm(std::vector<std::string> params);
-	void startProcessor(std::vector<std::string> params);
-	//void startCleaner(std::string path, std::vector<std::string> params);
+	void startSharedMemoryFarm();
+	void startProcessor(std::string path, std::vector<std::string> params);
+	void startProcessors(int amount, std::vector<std::string> params);
 	void killFarm(std::string path);
 	void killSharedMemoryFarm();
 	void killProcessors();
-
-
 	int launchExecutable(boost::filesystem::path  execPath, std::vector<std::string> params);
-	char ** generateArgv(boost::filesystem::path execPath, std::vector<std::string> params);
-
-
 	void infoHandler();
+
 	std::string myIP_;
 	DimInfo availableSourceIDs_;
 	DimInfo availableL1SourceIDs_;
@@ -86,8 +76,6 @@ private:
 	std::mutex mtx;
 	int processorAmount_ = 6;
 	std::vector<pid_t> processorsPID_;
-	std::string sharedFarmPath_ = "/usr/local/bin/na62-farm-sm";
-	std::string sharedProcessorPath_ = "/usr/local/bin/trigger-processor";
 
 	DimListener dimListener;
 };
