@@ -180,7 +180,7 @@ void FarmStarter::startSharedMemoryFarm(std::vector<std::string> params) {
 	//Start farm
 	startFarm(sharedFarmPath_, params);
 
-	//startProcessors(processorAmount_ - 1);
+	startProcessors(processorAmount_ - 1);
 	monitoringStatus_ = 1;
 
 }

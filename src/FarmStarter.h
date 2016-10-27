@@ -84,10 +84,10 @@ private:
 	MessageQueueConnector_ptr myConnector_;
 
 	std::mutex mtx;
-	int processorAmount_ = 1;
+	int processorAmount_ = 6;
 	std::vector<pid_t> processorsPID_;
-	std::string sharedFarmPath_ = "/performance/user/marco/workspace/na62-farm/Debug/na62-farm";
-	std::string sharedProcessorPath_ = "/performance/user/marco/workspace/na62-farm-packets/Trigger-processor/trigger-processor";
+	std::string sharedFarmPath_ = "/usr/local/bin/na62-farm-sm";
+	std::string sharedProcessorPath_ = "/usr/local/bin/trigger-processor";
 
 	DimListener dimListener;
 };
