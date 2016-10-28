@@ -63,10 +63,24 @@ FarmStarter::FarmStarter(MessageQueueConnector_ptr myConnector) :
 	});
 	*/
 	signal(SIGCHLD, SIG_IGN);
+
+	if (Options::GetBool(OPTION_IS_SHARED_MEMORY)) {
+		isSharedMemory_ = 1;
+	} else {
+		isSharedMemory_ = 0;
+	}
 }
 
 FarmStarter::~FarmStarter() {
 	// TODO Auto-generated destructor stub
+}
+
+void FarmStarter::setSingleProcess() {
+	isSharedMemory_ = 0;
+}
+
+void FarmStarter::setMultiProcess() {
+	isSharedMemory_ = 1;
 }
 
 void FarmStarter::test() {
@@ -77,7 +91,7 @@ void FarmStarter::test() {
 
 void FarmStarter::startFarm() {
 	try {
-		if (Options::GetBool(OPTION_IS_SHARED_MEMORY)) {
+		if (isSharedMemory_) {
 			startSharedMemoryFarm();
 		} else {
 			startFarm(Options::GetString(OPTION_FARM_EXEC_PATH), generateStartParameters("na62-farm"));
@@ -180,7 +194,7 @@ void FarmStarter::startSharedMemoryFarm() {
 
 void FarmStarter::killFarm() {
 
-	if (Options::GetBool(OPTION_IS_SHARED_MEMORY)) {
+	if (isSharedMemory_) {
 		killSharedMemoryFarm();
 	} else {
 		killFarm(Options::GetString(OPTION_FARM_EXEC_PATH));

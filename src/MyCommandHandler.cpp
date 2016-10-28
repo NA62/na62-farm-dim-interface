@@ -31,6 +31,12 @@ void MyCommandHandler::commandHandler() {
 	} else if (message == "stop") {
 		LOG_INFO("Stop received");
 		farmStarter_.killFarm();
+	} else if (message == "singleprocess") {
+			LOG_INFO("Singleprocess Farm received");
+			farmStarter_.setSingleProcess();
+	} else if (message == "multiprocess") {
+			LOG_INFO("Multiprocess Farm received (Shared Memory)");
+			farmStarter_.setMultiProcess();
 	} else if (message == "test") {
 		LOG_INFO("Test received");
 		farmStarter_.test();

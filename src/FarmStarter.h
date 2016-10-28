@@ -50,6 +50,8 @@ public:
 	}
 	std::string getSharedProcessorPath();
 	std::vector<std::string> generateStartParameters(std::string appName = "na62-farm");
+	void setSingleProcess();
+	void setMultiProcess();
 private:
 	void startFarm(std::string path, std::vector<std::string> param);
 	void startSharedMemoryFarm();
@@ -76,6 +78,8 @@ private:
 	std::mutex mtx;
 	int processorAmount_ = 6;
 	std::vector<pid_t> processorsPID_;
+
+	bool isSharedMemory_;
 
 	DimListener dimListener;
 };
