@@ -194,11 +194,16 @@ void FarmStarter::startSharedMemoryFarm() {
 
 void FarmStarter::killFarm() {
 
-	if (isSharedMemory_) {
-		killSharedMemoryFarm();
-	} else {
-		killFarm(Options::GetString(OPTION_FARM_EXEC_PATH));
-	}
+//	if (isSharedMemory_) {
+//		killSharedMemoryFarm();
+//	} else {
+//		killFarm(Options::GetString(OPTION_FARM_EXEC_PATH));
+//	}
+
+	//Don't care about the version
+	killSharedMemoryFarm();
+	killFarm(Options::GetString(OPTION_FARM_EXEC_PATH));
+
 }
 
 void FarmStarter::killFarm(std::string exec_path) {
@@ -367,7 +372,7 @@ std::vector<std::string> FarmStarter::generateStartParameters(std::string appNam
 }
 
 std::string FarmStarter::getSharedProcessorPath() {
-	return Options::GetString(OPTION_SM_FARM_EXEC_PATH);
+	return Options::GetString(OPTION_TRIGGER_PROCESSOR_EXEC_PATH);
 }
 
 void FarmStarter::infoHandler() {

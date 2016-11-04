@@ -29,14 +29,14 @@ using namespace na62::dim;
 void processorMonitor(FarmStarter *starter) {
 
 	while (true) {
-		std::cout<<"Processor List: "<<std::endl;
+		LOG_INFO("Processor List: ");
 		int count_alive = 0;
 		for (auto &processor_pid : starter->getProcessorPID()) {
 			if (!kill( (int) processor_pid, 0)) {
-				std::cout<<processor_pid<<" still alive"<<std::endl;
+				LOG_INFO(processor_pid<<" still alive");
 				++count_alive;
 			} else {
-				std::cout<<processor_pid<<"       dead"<<std::endl;
+				LOG_ERROR(processor_pid<<"       dead");
 			}
 		}
 
@@ -47,7 +47,7 @@ void processorMonitor(FarmStarter *starter) {
 
 			while (count_alive++ < starter->getProcessorAmount()) {
 				boost::filesystem::path exec_path(starter->getSharedProcessorPath());
-				LOG_INFO ("Starting trigger processor " << exec_path.string());
+				LOG_INFO("Starting trigger processor " << exec_path.string());
 				std::vector<std::string> triggerProcessorParams = starter->generateStartParameters("trigger-processor");
 
 				signal(SIGCHLD, SIG_IGN);//don't want to wait for child process created
