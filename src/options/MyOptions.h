@@ -46,9 +46,9 @@ public:
 				"Config file for the options shown here")
 		(OPTION_FARM_EXEC_PATH, po::value<std::string>()->required(),
 				"Path to the executable farm program")
-		(OPTION_SM_FARM_EXEC_PATH, po::value<std::string>()->required(),
+		(OPTION_SM_FARM_EXEC_PATH, po::value<std::string>()->default_value("/usr/local/bin/na62-farm-sm"),
 				"Path to the executable shared memory farm program")
-		(OPTION_SM_FARM_EXEC_PATH, po::value<std::string>()->required(),
+		(OPTION_TRIGGER_PROCESSOR_EXEC_PATH, po::value<std::string>()->default_value("/usr/local/bin/trigger-processor"),
 				"Path to the executable trigger processor")
 		(OPTION_HEARTBEAT_TIMEOUT_MILLIS, po::value<int>()->required(),
 				"Number of milliseconds that have to pass without receiving a heart beat from the farm program until we go into error mode.")
