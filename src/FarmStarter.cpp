@@ -193,17 +193,9 @@ void FarmStarter::startSharedMemoryFarm() {
 }
 
 void FarmStarter::killFarm() {
-
-//	if (isSharedMemory_) {
-//		killSharedMemoryFarm();
-//	} else {
-//		killFarm(Options::GetString(OPTION_FARM_EXEC_PATH));
-//	}
-
 	//Don't care about the version
 	killSharedMemoryFarm();
 	killFarm(Options::GetString(OPTION_FARM_EXEC_PATH));
-
 }
 
 void FarmStarter::killFarm(std::string exec_path) {
@@ -233,6 +225,7 @@ void FarmStarter::killSharedMemoryFarm(){
 }
 
 void FarmStarter::killProcessors() {
+	//Killing all stored pid
 	for (auto &processor_pid : processorsPID_) {
 		if (!kill( (int) processor_pid, 0)) {
 			LOG_INFO("Killing: " << processor_pid);
@@ -241,7 +234,7 @@ void FarmStarter::killProcessors() {
 			LOG_ERROR(processor_pid << "       dead");
 		}
 	}
-
+	//Killing any triggerprocess not registed
 	std::string path(Options::GetString(OPTION_TRIGGER_PROCESSOR_EXEC_PATH));
 	boost::filesystem::path execPath(path);
 	LOG_INFO("Killing " + path);
