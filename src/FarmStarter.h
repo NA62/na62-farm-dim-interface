@@ -8,12 +8,13 @@
 #ifndef FARMSTARTER_H_
 #define FARMSTARTER_H_
 
-#include <dim/dic.hxx>
+#include <dic.hxx>
+#include <dim/DimListener.h>
 #include <sys/types.h>
 #include <string>
 #include <vector>
 #include <string>
-#include <dim/DimListener.h>
+
 #include <boost/filesystem.hpp>
 #include <mutex>
 

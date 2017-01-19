@@ -8,7 +8,7 @@
 #ifndef MONITORDIMSERVER_H_
 #define MONITORDIMSERVER_H_
 
-#include <dim/dis.hxx>
+#include <dis.hxx>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>

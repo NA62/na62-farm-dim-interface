@@ -8,7 +8,7 @@
 #ifndef MYCOMMANDHANDLER_H_
 #define MYCOMMANDHANDLER_H_
 
-#include <dim/dis.hxx>
+#include <dis.hxx>
 #include <string>
 
 #include "FarmStarter.h"
