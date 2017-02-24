@@ -257,111 +257,110 @@ int FarmStarter::launchExecutable(boost::filesystem::path execPath, std::vector<
 
 std::vector<std::string> FarmStarter::generateStartParameters(std::string appName) {
 	std::vector<std::string> argv;
-
+	int runNumber = dimListener.getRunNumber(); // This should always be 0 unless the PC starts during a run!
+	argv.push_back("--currentRunNumber=" + std::to_string(runNumber));
+	/*
+	 * Merger
+	 */
 	if (Options::GetBool(OPTION_IS_MERGER)) {
-		/*
-		 * Merger
-		 */
-		int runNumber = dimListener.getRunNumber(); // This should always be 0 unless the PC starts during a run!
-		argv.push_back("--currentRunNumber=" + std::to_string(runNumber));
-		return argv;
-	} else {
-		/*
-		 * PC Farm
-		 */
-		argv.push_back("--appName=" + appName); //Useful for log files
-		argv.push_back(
-				"--firstBurstID="
-						+ std::to_string(dimListener.getNextBurstNumber()));
-
-		std::string mergerList;
-		if (enabledMergerNodes_.getSize() <= 0) {
-			LOG_ERROR("Unable to connect to EnabledMergers service. Unable to start!");
-		} else {
-			if (enabledMergerNodes_.getString()[0] == (char) 0xFFFFFFFF) {
-				LOG_ERROR("EnabledMergerNodes is empty. Starting the pc-farm will fail!");
-			} else {
-				char* str = enabledMergerNodes_.getString();
-				mergerList = std::string(str, enabledMergerNodes_.getSize());
-			}
-		}
-		boost::replace_all(mergerList, ";", ",");
-		argv.push_back("--mergerHostNames=" + mergerList);
-
-		std::string farmList = "";
-		if (enabledPCNodes_.getSize() <= 0) {
-			LOG_ERROR("Unable to connect to EnabledPCNodes service. Unable to start!");
-		} else {
-			if (enabledPCNodes_.getString()[0] == (char) 0xFFFFFFFF) {
-				LOG_ERROR("EnabledPCNodes is empty. Starting the pc-farm will fail!");
-			} else {
-				char* str = enabledPCNodes_.getString();
-				farmList = std::string(str, enabledPCNodes_.getSize());
-			}
-		}
-
-		boost::replace_all(farmList, ";", ",");
-		argv.push_back("--farmHostNames=" + farmList);
-		argv.push_back("--numberOfFragmentsPerMEP=" + std::to_string(mepFactor_.getInt()));
-		argv.push_back("--incrementBurstAtEOB=0"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
-
-		std::string enabledDetectorIDs = "";
-		if (availableSourceIDs_.getSize() <= 0) {
-			LOG_ERROR("Unable to connect to EnabledDetectors service. Unable to start!");
-		} else {
-			if (availableSourceIDs_.getString()[0] == (char) 0xFFFFFFFF
-					&& availableSourceIDs_.getSize() == 4) {
-				LOG_ERROR("EnabledDetectors is empty. Starting the pc-farm will fail!");
-			} else {
-				char* str = availableSourceIDs_.getString();
-				enabledDetectorIDs = std::string(str,
-						availableSourceIDs_.getSize());
-			}
-		}
-
-		std::string enabledL1DetectorIDs = "";
-		if (availableL1SourceIDs_.getSize() <= 0) {
-			LOG_ERROR("Unable to connect to L1EnabledDetectors service. Unable to start!");
-		} else {
-			if ((availableL1SourceIDs_.getString()[0] == (char) 0xFFFFFFFF || availableL1SourceIDs_.getString()[0] == (char) 0x0 )
-					&& availableL1SourceIDs_.getSize() <= 4) {
-				LOG_INFO("L1EnabledDetectors is empty.");
-			} else {
-				char* str = availableL1SourceIDs_.getString();
-				enabledL1DetectorIDs = std::string(str, availableL1SourceIDs_.getSize());
-				argv.push_back("--L1DataSourceIDs=" + enabledL1DetectorIDs);
-			}
-		}
-
-		argv.push_back("--L0DataSourceIDs=" + enabledDetectorIDs);
-
-		std::string additionalOptions = "";
-		if (additionalOptions_.getSize() <= 0) {
-			LOG_ERROR("Unable to connect to AdditionalOptions service. Unable to start!");
-		} else {
-			if (additionalOptions_.getString()[0] == (char) 0xFFFFFFFF
-					&& additionalOptions_.getSize() == 4) {
-				LOG_INFO("Additional options is empty.");
-			} else {
-				char* str = additionalOptions_.getString();
-				additionalOptions = std::string(str,
-						additionalOptions_.getSize());
-				boost::algorithm::trim(additionalOptions);
-
-				std::vector<std::string> strs;
-				boost::split(strs, additionalOptions, boost::is_any_of(" "));
-
-				for (auto option : strs) {
-					argv.push_back(option);
-				}
-			}
-		}
-
-		for (auto a : argv) {
-			LOG_INFO( a );
-		}
 		return argv;
 	}
+
+	/*
+	 * PC Farm
+	 */
+	argv.push_back("--appName=" + appName); //Useful for log files
+	argv.push_back(
+			"--firstBurstID="
+					+ std::to_string(dimListener.getNextBurstNumber()));
+
+	std::string mergerList;
+	if (enabledMergerNodes_.getSize() <= 0) {
+		LOG_ERROR("Unable to connect to EnabledMergers service. Unable to start!");
+	} else {
+		if (enabledMergerNodes_.getString()[0] == (char) 0xFFFFFFFF) {
+			LOG_ERROR("EnabledMergerNodes is empty. Starting the pc-farm will fail!");
+		} else {
+			char* str = enabledMergerNodes_.getString();
+			mergerList = std::string(str, enabledMergerNodes_.getSize());
+		}
+	}
+	boost::replace_all(mergerList, ";", ",");
+	argv.push_back("--mergerHostNames=" + mergerList);
+
+	std::string farmList = "";
+	if (enabledPCNodes_.getSize() <= 0) {
+		LOG_ERROR("Unable to connect to EnabledPCNodes service. Unable to start!");
+	} else {
+		if (enabledPCNodes_.getString()[0] == (char) 0xFFFFFFFF) {
+			LOG_ERROR("EnabledPCNodes is empty. Starting the pc-farm will fail!");
+		} else {
+			char* str = enabledPCNodes_.getString();
+			farmList = std::string(str, enabledPCNodes_.getSize());
+		}
+	}
+
+	boost::replace_all(farmList, ";", ",");
+	argv.push_back("--farmHostNames=" + farmList);
+	argv.push_back("--numberOfFragmentsPerMEP=" + std::to_string(mepFactor_.getInt()));
+	argv.push_back("--incrementBurstAtEOB=0"); // Use the nextBurstNumber service to change the burstID instead of just incrementing at EOB
+
+	std::string enabledDetectorIDs = "";
+	if (availableSourceIDs_.getSize() <= 0) {
+		LOG_ERROR("Unable to connect to EnabledDetectors service. Unable to start!");
+	} else {
+		if (availableSourceIDs_.getString()[0] == (char) 0xFFFFFFFF
+				&& availableSourceIDs_.getSize() == 4) {
+			LOG_ERROR("EnabledDetectors is empty. Starting the pc-farm will fail!");
+		} else {
+			char* str = availableSourceIDs_.getString();
+			enabledDetectorIDs = std::string(str,
+					availableSourceIDs_.getSize());
+		}
+	}
+
+	std::string enabledL1DetectorIDs = "";
+	if (availableL1SourceIDs_.getSize() <= 0) {
+		LOG_ERROR("Unable to connect to L1EnabledDetectors service. Unable to start!");
+	} else {
+		if ((availableL1SourceIDs_.getString()[0] == (char) 0xFFFFFFFF || availableL1SourceIDs_.getString()[0] == (char) 0x0 )
+				&& availableL1SourceIDs_.getSize() <= 4) {
+			LOG_INFO("L1EnabledDetectors is empty.");
+		} else {
+			char* str = availableL1SourceIDs_.getString();
+			enabledL1DetectorIDs = std::string(str, availableL1SourceIDs_.getSize());
+			argv.push_back("--L1DataSourceIDs=" + enabledL1DetectorIDs);
+		}
+	}
+
+	argv.push_back("--L0DataSourceIDs=" + enabledDetectorIDs);
+
+	std::string additionalOptions = "";
+	if (additionalOptions_.getSize() <= 0) {
+		LOG_ERROR("Unable to connect to AdditionalOptions service. Unable to start!");
+	} else {
+		if (additionalOptions_.getString()[0] == (char) 0xFFFFFFFF
+				&& additionalOptions_.getSize() == 4) {
+			LOG_INFO("Additional options is empty.");
+		} else {
+			char* str = additionalOptions_.getString();
+			additionalOptions = std::string(str,
+					additionalOptions_.getSize());
+			boost::algorithm::trim(additionalOptions);
+
+			std::vector<std::string> strs;
+			boost::split(strs, additionalOptions, boost::is_any_of(" "));
+
+			for (auto option : strs) {
+				argv.push_back(option);
+			}
+		}
+	}
+
+	for (auto a : argv) {
+		LOG_INFO( a );
+	}
+	return argv;
 }
 
 std::string FarmStarter::getSharedProcessorPath() {

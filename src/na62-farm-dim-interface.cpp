@@ -29,7 +29,6 @@ using namespace na62::dim;
 void processorMonitor(FarmStarter *starter) {
 
 	while (true) {
-		LOG_INFO("Processor List: ");
 		int count_alive = 0;
 		for (auto &processor_pid : starter->getProcessorPID()) {
 			if (!kill( (int) processor_pid, 0)) {
