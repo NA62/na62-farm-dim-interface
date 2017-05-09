@@ -37,6 +37,7 @@ private:
 	DimService stateService_;
 	DimService inIpAddressService_;
 	std::map<std::string, std::pair<DimService_ptr, std::string>> multiStatisticServices_;
+	std::map<std::string, std::pair<DimService_ptr, std::string>> eobStatisticServices_;
 	std::map<std::string, std::pair<DimService_ptr, long long>> longlongStatisticServices_;
 
 	MessageQueueConnector_ptr messageQueueConnector_;
@@ -49,6 +50,7 @@ public:
 
 	void updateState(STATE state);
 	void updateStatistics(std::string serviceName, std::string statistics);
+	void updateEOBStatistics(std::string serviceName, std::string statistics);
 	void updateStatistics(std::string serviceName, longlong value);
 };
 

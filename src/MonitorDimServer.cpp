@@ -15,9 +15,9 @@ namespace dim {
 MonitorDimServer::MonitorDimServer(
 		MessageQueueConnector_ptr messageQueueConnector, std::string hostName,
 		FarmStarter& farmStarter, std::string inIpAddress) :
-		hostName_(hostName), cmdh_(hostName, messageQueueConnector, farmStarter), initialState_(
-				OFF), stateService_(std::string(hostName + "/State").data(),
-				initialState_), inIpAddressService_(
+		hostName_(hostName), cmdh_(hostName, messageQueueConnector,
+				farmStarter), initialState_(OFF), stateService_(
+				std::string(hostName + "/State").data(), initialState_), inIpAddressService_(
 				std::string(hostName + "/InIpAddress").data(),
 				(char*) inIpAddress.data()), messageQueueConnector_(
 				messageQueueConnector) {
@@ -46,6 +46,16 @@ MonitorDimServer::MonitorDimServer(
 				initialVal);
 		ptr->updateService(
 				longlongStatisticServices_[LONGLONG_SERVICES[i]].second);
+	}
+
+	auto EOB_STAT_SERVICES = Options::GetStringList(OPTION_EOB_STAT_SERVICES);
+	for (unsigned int i = 0; i < EOB_STAT_SERVICES.size(); i++) {
+		std::string serviceName = std::string(
+				"NA62/EOB/" + hostName + "/" + EOB_STAT_SERVICES[i]);
+		LOG_INFO("Starting service " + serviceName);
+
+		DimService_ptr ptr(new DimService(serviceName.data(), (char*) ""));
+		eobStatisticServices_[EOB_STAT_SERVICES[i]] = std::make_pair(ptr, "");
 	}
 
 	start(hostName.data());
@@ -85,6 +95,18 @@ void MonitorDimServer::updateStatistics(std::string serviceName,
 	multiStatisticServices_[serviceName].second = std::move(statistics);
 	multiStatisticServices_[serviceName].first->updateService(
 			(char*) multiStatisticServices_[serviceName].second.data());
+}
+void MonitorDimServer::updateEOBStatistics(std::string serviceName,
+		std::string statistics) {
+
+	if (eobStatisticServices_.find(serviceName)
+			== eobStatisticServices_.end()) {
+		LOG_ERROR("Unknown service: " + serviceName);
+		return;
+	}
+	eobStatisticServices_[serviceName].second = std::move(statistics);
+	eobStatisticServices_[serviceName].first->updateService(
+			(char*) eobStatisticServices_[serviceName].second.data());
 }
 
 void MonitorDimServer::updateStatistics(std::string serviceName,

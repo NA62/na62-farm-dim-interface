@@ -36,7 +36,7 @@ void MessageQueueConnector::run() {
 
 			state = IPCHandler::tryToReceiveState();
 			while (state != RUNNING && state != TIMEOUT) {
-				LOG_INFO( "Received heart beat: setting state to " + state);
+				LOG_INFO("Received heart beat: setting state to " + state);
 				if (lastSentState != state && state != TIMEOUT) {
 					sendState(state);
 					lastSentState = state;
@@ -54,7 +54,7 @@ void MessageQueueConnector::run() {
 				while (!(statisticsMessage =
 						IPCHandler::tryToReceiveStatistics()).empty()) {
 					if (Options::GetInt(OPTION_VERBOSITY) > 1) {
-						LOG_INFO ("Received: " + statisticsMessage);
+						LOG_INFO("Received: " + statisticsMessage);
 					}
 
 					std::string statisticsName = statisticsMessage.substr(0,
@@ -63,18 +63,28 @@ void MessageQueueConnector::run() {
 							statisticsMessage.find(':') + 1);
 
 					try {
-						if (statistics.find(";") != std::string::npos) { // separated key/value pairs
-							dimServer_->updateStatistics(statisticsName,
-									statistics);
-						} else if (statistics.find("{") != std::string::npos) { // JSON string
-							dimServer_->updateStatistics(statisticsName,
+						if (statisticsName.find("EOBStats") != std::string::npos) {
+							dimServer_->updateEOBStatistics(statisticsName,
 									statistics);
 						} else {
-							dimServer_->updateStatistics(statisticsName,
-									boost::lexical_cast<longlong>(statistics));
+							if (statistics.find(";") != std::string::npos) { // separated key/value pairs
+								dimServer_->updateStatistics(statisticsName,
+										statistics);
+							} else if (statistics.find("{")
+									!= std::string::npos) { // JSON string
+								dimServer_->updateStatistics(statisticsName,
+										statistics);
+							} else {
+								dimServer_->updateStatistics(statisticsName,
+										boost::lexical_cast<longlong>(
+												statistics));
+							}
 						}
 					} catch (boost::bad_lexical_cast const& e) {
-						LOG_ERROR("Bad format of message for service "+ statisticsName +": " + statisticsMessage);
+						LOG_ERROR(
+								"Bad format of message for service "
+										+ statisticsName + ": "
+										+ statisticsMessage);
 					}
 
 					int counter = 0;
