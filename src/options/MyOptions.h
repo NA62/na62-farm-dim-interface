@@ -55,7 +55,7 @@ public:
 				"Number of milliseconds that have to pass without receiving a heart beat from the farm program until we go into error mode.")
 		(OPTION_MULTI_STAT_SERVICES, po::value<std::string>()->required(),
 				"Comma separated (S1,S2,S3...) list of services with multiple stats like \"A:a;B:b\"")
-		(OPTION_EOB_STAT_SERVICES, po::value<std::string>()->required(),
+		(OPTION_EOB_STAT_SERVICES, po::value<std::string>(),
 				"Comma separated (S1,S2,S3...) list of services with multiple eob stats string")
 		(OPTION_LONGLONG_SERVICES, po::value<std::string>()->required(),
 				"Comma separated list (S1,S2,S3...) of services with single long values.")
