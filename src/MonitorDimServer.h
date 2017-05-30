@@ -50,7 +50,8 @@ public:
 
 	void updateState(STATE state);
 	void updateStatistics(std::string serviceName, std::string statistics);
-	void updateEOBStatistics(std::string serviceName, std::string statistics);
+	void updateL1EOBStatistics(std::string serviceName, std::string statistics);
+	void updateL2EOBStatistics(std::string serviceName, std::string statistics);
 	void updateStatistics(std::string serviceName, longlong value);
 };
 

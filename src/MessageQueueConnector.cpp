@@ -61,11 +61,11 @@ void MessageQueueConnector::run() {
 							statisticsMessage.find(':'));
 					std::string statistics = statisticsMessage.substr(
 							statisticsMessage.find(':') + 1);
-
 					try {
-						if (statisticsName.find("EOBStats") != std::string::npos) {
-							dimServer_->updateEOBStatistics(statisticsName,
-									statistics);
+						if (statisticsName.find("EOBStatsL1") != std::string::npos) {
+							dimServer_->updateL1EOBStatistics(statisticsName, statistics);
+						} else if (statisticsName.find("EOBStatsL2") != std::string::npos) {
+							dimServer_->updateL2EOBStatistics(statisticsName, statistics);
 						} else {
 							if (statistics.find(";") != std::string::npos) { // separated key/value pairs
 								dimServer_->updateStatistics(statisticsName,

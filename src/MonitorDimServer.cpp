@@ -8,6 +8,7 @@
 #include "options/MyOptions.h"
 #include "MessageQueueConnector.h"
 #include "MonitorDimServer.h"
+#include <structs/EOBPackets.h>
 
 namespace na62 {
 namespace dim {
@@ -48,16 +49,26 @@ MonitorDimServer::MonitorDimServer(
 				longlongStatisticServices_[LONGLONG_SERVICES[i]].second);
 	}
 
-	auto EOB_STAT_SERVICES = Options::GetStringList(OPTION_EOB_STAT_SERVICES);
-	for (unsigned int i = 0; i < EOB_STAT_SERVICES.size(); i++) {
-		std::string serviceName = std::string(
-				"NA62/EOB/" + hostName + "/" + EOB_STAT_SERVICES[i]);
-		LOG_INFO("Starting service " + serviceName);
-
-		DimService_ptr ptr(new DimService(serviceName.data(), (char*) ""));
-		eobStatisticServices_[EOB_STAT_SERVICES[i]] = std::make_pair(ptr, "");
+	bool is_merger = Options::GetBool(OPTION_IS_MERGER);
+	if (!is_merger) {
+		//I wont start those services on the mergers
+		std::vector<std::string> EOB_STAT_SERVICES;
+		EOB_STAT_SERVICES = {"EOBStatsL1", "EOBStatsL2"};
+		for (unsigned int i = 0; i < EOB_STAT_SERVICES.size(); i++) {
+			uint structure_size = 0;
+			if (EOB_STAT_SERVICES[i] == "EOBStatsL1") {
+				structure_size = sizeof(l1EOBInfo);
+			} else {
+				structure_size = sizeof(l2EOBInfo);
+			}
+			std::string serviceName = std::string("NA62/EOB/" + hostName + "/" + EOB_STAT_SERVICES[i]);
+			LOG_INFO("Starting service " + serviceName);
+			DimService_ptr ptr(new DimService(serviceName.data(), "C", (char*) "", structure_size));
+			eobStatisticServices_[EOB_STAT_SERVICES[i]] = std::make_pair(ptr, "");
+		}
 	}
 
+    LOG_INFO("Starting DIM server");
 	start(hostName.data());
 }
 
@@ -96,7 +107,7 @@ void MonitorDimServer::updateStatistics(std::string serviceName,
 	multiStatisticServices_[serviceName].first->updateService(
 			(char*) multiStatisticServices_[serviceName].second.data());
 }
-void MonitorDimServer::updateEOBStatistics(std::string serviceName,
+void MonitorDimServer::updateL1EOBStatistics(std::string serviceName,
 		std::string statistics) {
 
 	if (eobStatisticServices_.find(serviceName)
@@ -106,8 +117,21 @@ void MonitorDimServer::updateEOBStatistics(std::string serviceName,
 	}
 	eobStatisticServices_[serviceName].second = std::move(statistics);
 	eobStatisticServices_[serviceName].first->updateService(
-			(char*) eobStatisticServices_[serviceName].second.data());
+			(void*) eobStatisticServices_[serviceName].second.data(), sizeof(l1EOBInfo));
 }
+void MonitorDimServer::updateL2EOBStatistics(std::string serviceName,
+		std::string statistics) {
+
+	if (eobStatisticServices_.find(serviceName)
+			== eobStatisticServices_.end()) {
+		LOG_ERROR("Unknown service: " + serviceName);
+		return;
+	}
+	eobStatisticServices_[serviceName].second = std::move(statistics);
+	eobStatisticServices_[serviceName].first->updateService(
+			(void*) eobStatisticServices_[serviceName].second.data(), sizeof(l2EOBInfo));
+}
+
 
 void MonitorDimServer::updateStatistics(std::string serviceName,
 		longlong value) {
