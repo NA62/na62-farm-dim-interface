@@ -17,9 +17,9 @@ void MyCommandHandler::commandHandler() {
 	std::string message;
 	message.resize(currCmnd->getSize());
 	message = std::string(currCmnd->getString());
-	if (Options::GetInt(OPTION_VERBOSITY) != 0) {
-		LOG_INFO( "Received message: " + message);
-	}
+	//if (Options::GetInt(OPTION_VERBOSITY) != 0) {
+		LOG_INFO( "Command received message: " + message);
+	//}
 
 	std::transform(message.begin(), message.end(), message.begin(), ::tolower);
 	if (message == "start") {

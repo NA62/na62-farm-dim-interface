@@ -35,6 +35,7 @@ public:
 
 private:
 	MonitorDimServer_ptr dimServer_;
+	STATE lastSentState_;
 };
 
 typedef boost::shared_ptr<MessageQueueConnector> MessageQueueConnector_ptr;

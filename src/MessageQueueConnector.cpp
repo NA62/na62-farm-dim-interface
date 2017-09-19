@@ -24,7 +24,8 @@ MessageQueueConnector::~MessageQueueConnector() {
 }
 
 void MessageQueueConnector::run() {
-	STATE lastSentState = OFF;
+	lastSentState_ = OFF;
+
 	while (true) {
 		STATE state = OFF;
 
@@ -37,18 +38,18 @@ void MessageQueueConnector::run() {
 			state = IPCHandler::tryToReceiveState();
 			while (state != RUNNING && state != TIMEOUT) {
 				LOG_INFO("Received heart beat: setting state to " + state);
-				if (lastSentState != state && state != TIMEOUT) {
+				if (lastSentState_ != state && state != TIMEOUT) {
 					sendState(state);
-					lastSentState = state;
+					lastSentState_ = state;
 				}
 				state = IPCHandler::tryToReceiveState();
 			}
 
 			if (state != TIMEOUT) {
 				LOG_INFO("Received heart beat: setting state to " + state);
-				if (lastSentState != state) {
+				if (lastSentState_ != state) {
 					sendState(state);
-					lastSentState = state;
+					lastSentState_ = state;
 				}
 
 				while (!(statisticsMessage =
@@ -104,9 +105,9 @@ void MessageQueueConnector::run() {
 						Options::GetInt(OPTION_HEARTBEAT_TIMEOUT_MILLIS));
 			} else {
 				LOG_INFO("Heart beat timeout: setting state to OFF");
-				if (lastSentState != OFF) {
+				if (lastSentState_ != OFF) {
 					sendState(OFF);
-					lastSentState = OFF;
+					lastSentState_ = OFF;
 				}
 			}
 		}
@@ -119,7 +120,18 @@ void MessageQueueConnector::sendState(STATE state) {
 }
 
 void MessageQueueConnector::sendCommand(std::string command) {
+	//if (lastSentState_ != RUNNING) {
+	if (lastSentState_ == INITIALIZING) {
+		//I just send the UpdateNextBurstID Command
+		if (command.find("UpdateNextBurstID") != std::string::npos) {
+			//Do nothing
+		} else {
+			LOG_ERROR("Command: " + command +  " Not send because the farm state was: " << lastSentState_);
+			return;
+		}
+	}
 	IPCHandler::sendCommand(command);
+
 }
 } /* namespace dim */
 } /* namespace na62 */

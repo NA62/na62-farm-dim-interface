@@ -178,12 +178,10 @@ void FarmStarter::startSharedMemoryFarm() {
 	//Clean Shared memory if any
 	na62::SharedMemoryManager::eraseAll();
 
-	sleep(1);
 	//Start one processor
 	std::vector<std::string> triggerProcessorParams = generateStartParameters("trigger-processor");
 	startProcessor(Options::GetString(OPTION_TRIGGER_PROCESSOR_EXEC_PATH), triggerProcessorParams);
 
-	sleep(1);
 	//Start farm
 	startFarm(Options::GetString(OPTION_SM_FARM_EXEC_PATH), generateStartParameters("na62-farm-sm"));
 
