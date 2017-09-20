@@ -16,3 +16,4 @@ gmon.out
 /Debug
 /Release
 /Debug_ERS/
+.settings/*
